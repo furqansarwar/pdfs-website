@@ -3093,3 +3093,23 @@ header.navbar .nav-links a {
     align-items: flex-start;
   }
 }
+
+/* FOOTER - FULL WIDTH PLAIN BACKGROUND */
+footer.footer {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  background: #202020 !important;
+  box-shadow: none !important;
+  border: none !important;
+  outline: none !important;
+}
+
+footer.footer .footer-main,
+footer.footer .footer-bottom {
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
