@@ -2240,57 +2240,5 @@ nav a:focus-visible,
 }
 
 
-/* ===== PURPLE TOP NAVBAR ===== */
-
-header,
-.navbar,
-nav {
-  background: linear-gradient(110deg, #583bd0, #7255e9, #8065f5) !important;
-  border-bottom: 1px solid rgba(255,255,255,.2);
-  box-shadow: 0 5px 25px rgba(88,59,208,.25);
-}
-
-/* Navbar text */
-header nav a,
-.navbar a,
-nav a {
-  color: #ffffff !important;
-}
-
-/* Hover effect */
-header nav a:hover,
-.navbar a:hover,
-nav a:hover {
-  color: #ffffff !important;
-  background: rgba(255,255,255,.17) !important;
-  box-shadow: 0 5px 18px rgba(255,255,255,.12);
-}
-
-/* Animated underline */
-header nav a::after,
-.navbar a::after,
-nav a::after {
-  background: #ffffff !important;
-}
 
 
-
-/* RESTORE CLEAN WHITE HEADER */
-
-header,
-.navbar,
-nav {
-  background: #ffffff !important;
-  background-image: none !important;
-  box-shadow: 0 3px 15px rgba(30, 25, 60, 0.06) !important;
-  border-bottom: 1px solid #eeeeF5 !important;
-}
-header,
-header.navbar,
-.navbar,
-header nav {
-  background: #ffffff !important;
-  background-image: none !important;
-  box-shadow: 0 3px 15px rgba(0,0,0,.06) !important;
-  border-bottom: 1px solid #eeeeee !important;
-}
