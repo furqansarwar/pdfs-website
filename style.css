@@ -1051,6 +1051,7 @@ button {
 .tool-modal.open {
   display: flex;
 }
+
 .modal-backdrop {
   position: absolute;
   inset: 0;
