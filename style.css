@@ -3045,3 +3045,51 @@ header.navbar .nav-links a {
     text-align: left;
   }
 }
+
+/* PDFS FOOTER - FLAT FULL WIDTH DESIGN */
+.footer {
+  display: block !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 65px 0 0 !important;
+  background: #141832 !important;
+  color: #ffffff;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.footer .footer-main {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.footer .footer-bottom {
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr auto;
+  align-items: center;
+  gap: 15px;
+  padding: 20px 0;
+  border-top: 1px solid #2b3050;
+}
+
+.footer .footer-bottom span:nth-child(2) {
+  text-align: center;
+  font-size: 10px;
+  line-height: 1.7;
+}
+
+@media (max-width: 650px) {
+  .footer .footer-bottom {
+    display: flex !important;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
