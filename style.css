@@ -2274,6 +2274,83 @@ nav a::after {
 }
 
 
+/* ===== PREMIUM NAVIGATION BUTTON DESIGN ===== */
+
+header nav a,
+.navbar nav a,
+.nav-links a {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 11px 18px !important;
+  margin: 0 3px;
+  border-radius: 12px !important;
+  color: #30205f !important;
+  font-size: 14px;
+  font-weight: 650;
+  text-decoration: none !important;
+  background: transparent !important;
+  transition: all .3s cubic-bezier(.2,.8,.2,1) !important;
+}
+
+/* Animated purple underline */
+header nav a::after,
+.navbar nav a::after,
+.nav-links a::after {
+  content: "";
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  width: 0;
+  height: 3px;
+  border-radius: 20px;
+  background: linear-gradient(90deg,#7255e9,#b49cff);
+  transform: translateX(-50%);
+  transition: width .3s ease;
+}
+
+/* Hover animation */
+header nav a:hover,
+.navbar nav a:hover,
+.nav-links a:hover {
+  color: #7255e9 !important;
+  background: rgba(114,85,233,.10) !important;
+  transform: translateY(-4px);
+  box-shadow: 0 9px 22px rgba(114,85,233,.13);
+}
+
+header nav a:hover::after,
+.navbar nav a:hover::after,
+.nav-links a:hover::after {
+  width: 55%;
+}
+
+/* Click feedback */
+header nav a:active,
+.navbar nav a:active,
+.nav-links a:active {
+  transform: scale(.94);
+}
+
+/* Keyboard focus */
+header nav a:focus-visible,
+.navbar nav a:focus-visible,
+.nav-links a:focus-visible {
+  outline: 2px solid #7255e9;
+  outline-offset: 3px;
+}
+
+/* Mobile */
+@media(max-width:700px) {
+  header nav a,
+  .navbar nav a,
+  .nav-links a {
+    padding: 9px 12px !important;
+    font-size: 13px;
+  }
+}
+
 
 
 
