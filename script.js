@@ -58,13 +58,16 @@ document.addEventListener("DOMContentLoaded", () => {
     modal.setAttribute("aria-hidden", "false");
   }
 
-  $$(".tool-card").forEach(card => {
-    card.addEventListener("click", () => {
-      const key = card.dataset.tool ||
-        Object.keys(names).find(k => names[k] === card.textContent.trim());
-      if (key) openTool(key);
-    });
+$$(".tool-card").forEach((card, index) => {
+  card.style.cursor = "pointer";
+
+  card.addEventListener("click", () => {
+    const key = card.dataset.tool ||
+      Object.keys(names)[index];
+
+    if (key) openTool(key);
   });
+});
 
   function closeTool() {
     modal.classList.remove("active");
