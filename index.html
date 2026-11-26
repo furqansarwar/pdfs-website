@@ -8,7 +8,10 @@
   <meta name="color-scheme" content="light">
   <meta property="og:title" content="PDFS — Simple, Smarter PDF Tools">
   <meta property="og:description" content="A clean workspace for everyday PDF tasks.">
-  <meta name="description" content="PDFS - Your all-in-one premium PDF workspace. Merge, split, compress and convert PDF files online.">
+  <meta name="description" content="Use free browser-based PDF tools to merge, split, optimize, rotate and convert documents. No account required for available tools.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://furqansarwar.github.io/pdfs-website/">
+  <meta property="og:url" content="https://furqansarwar.github.io/pdfs-website/">
   <title>PDFS — All-in-One PDF Tools</title>
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,6 +20,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body>
+<a class="skip-link" href="#mainContent">Skip to content</a>
 
 <header class="navbar">
   <a class="brand" href="#home"><span class="brand-icon"><i class="fa-solid fa-file-pdf"></i></span>PDFS<span class="brand-dot">.</span></a>
@@ -35,7 +39,7 @@
   </div>
 </header>
 
-<main>
+<main id="mainContent">
 <section class="hero section-wrap" id="home">
   <div class="hero-content reveal">
     <div class="eyebrow"><span class="eyebrow-dot"></span> YOUR SMARTER DOCUMENT WORKSPACE</div>
@@ -83,16 +87,16 @@
   <div class="tools-grid">
     <button class="tool-card reveal" data-tool="merge"><span class="tool-icon purple"><i class="fa-solid fa-object-group"></i></span><strong>Merge PDF</strong><small>Combine multiple PDFs into one document.</small><span class="tool-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></span></button>
     <button class="tool-card reveal" data-tool="split"><span class="tool-icon blue"><i class="fa-solid fa-scissors"></i></span><strong>Split PDF</strong><small>Separate pages into individual files.</small><span class="tool-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></span></button>
-    <button class="tool-card reveal" data-tool="compress"><span class="tool-icon green"><i class="fa-solid fa-compress"></i></span><strong>Compress PDF</strong><small>Reduce the size of your PDF files.</small><span class="tool-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></span></button>
-    <button class="tool-card reveal" data-tool="pdf-word"><span class="tool-icon orange"><i class="fa-solid fa-file-word"></i></span><strong>PDF to Word</strong><small>Extract PDF text into a Word document.</small><span class="tool-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></span></button>
-    <button class="tool-card reveal" data-tool="word-pdf"><span class="tool-icon blue"><i class="fa-solid fa-file-pdf"></i></span><strong>Word to PDF</strong><small>Turn Word documents into PDFs.</small><span class="tool-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></span></button>
+    <button class="tool-card reveal" data-tool="compress"><span class="tool-icon green"><i class="fa-solid fa-compress"></i></span><strong>Compress PDF</strong><small>Apply basic PDF optimization. Results vary by file.</small><span class="tool-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></span></button>
+    <button class="tool-card reveal" data-tool="pdf-word"><span class="tool-icon orange"><i class="fa-solid fa-file-word"></i></span><strong>PDF to Word</strong><small>Export PDF text to an editable Word file.</small><span class="tool-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></span></button>
+    <button class="tool-card reveal" data-tool="word-pdf"><span class="tool-icon blue"><i class="fa-solid fa-file-pdf"></i></span><strong>Word to PDF</strong><small>Create a simple PDF from DOCX text.</small><span class="tool-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></span></button>
     <button class="tool-card reveal" data-tool="pdf-jpg"><span class="tool-icon pink"><i class="fa-solid fa-file-image"></i></span><strong>PDF to JPG</strong><small>Convert PDF pages into images.</small><span class="tool-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></span></button>
     <button class="tool-card reveal" data-tool="jpg-pdf"><span class="tool-icon orange"><i class="fa-regular fa-images"></i></span><strong>JPG to PDF</strong><small>Create a PDF from your images.</small><span class="tool-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></span></button>
-    <button class="tool-card reveal" data-tool="pdf-excel"><span class="tool-icon green"><i class="fa-solid fa-file-excel"></i></span><strong>PDF to Excel</strong><small>Extract tables and text to spreadsheets.</small><span class="tool-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></span></button>
+    <button class="tool-card reveal" data-tool="pdf-excel"><span class="tool-icon green"><i class="fa-solid fa-file-excel"></i></span><strong>PDF to Excel</strong><small>Export extracted page text to an Excel sheet.</small><span class="tool-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></span></button>
     <button class="tool-card reveal" data-tool="rotate"><span class="tool-icon purple"><i class="fa-solid fa-rotate"></i></span><strong>Rotate PDF</strong><small>Rotate PDF pages to the right direction.</small><span class="tool-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></span></button>
     <button class="tool-card reveal" data-tool="watermark"><span class="tool-icon pink"><i class="fa-solid fa-stamp"></i></span><strong>Watermark PDF</strong><small>Add a custom watermark to your pages.</small><span class="tool-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></span></button>
     <button class="tool-card reveal" data-tool="protect"><span class="tool-icon blue"><i class="fa-solid fa-lock"></i></span><strong>Protect PDF</strong><small>Password protection — coming soon.</small><span class="tool-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></span></button>
-    <button class="tool-card reveal" data-tool="unlock"><span class="tool-icon orange"><i class="fa-solid fa-lock-open"></i></span><strong>Unlock PDF</strong><small>Remove supported PDF restrictions.</small><span class="tool-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></span></button>
+    <button class="tool-card reveal" data-tool="unlock"><span class="tool-icon orange"><i class="fa-solid fa-lock-open"></i></span><strong>Unlock PDF</strong><small>Attempt to open supported restricted PDFs.</small><span class="tool-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></span></button>
   </div>
 </section>
 
@@ -152,7 +156,7 @@
 
     <details class="faq-item">
       <summary>Is PDFS completely free?</summary>
-      <p>PDFS currently offers its listed tools without a paid subscription. Some advanced features may be limited or unavailable.</p>
+      <p>PDFS currently offers its listed tools without a paid subscription. Some features are still in development. See each tool description for current limitations.</p>
     </details>
 
     <details class="faq-item">
@@ -172,7 +176,7 @@
 
     <details class="faq-item">
       <summary>Which PDF tools are available?</summary>
-      <p>PDFS currently has 11 available tools. PDF password protection is planned for a future update.</p>
+      <p>PDFS currently has 11 available tools. PDF password protection is planned for a future update. PDF-to-Word and Word-to-PDF conversions focus on text and may not preserve the original layout. PDF-to-Excel exports extracted text by page, not fully reconstructed tables.</p>
     </details>
 
    
