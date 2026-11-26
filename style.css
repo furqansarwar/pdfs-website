@@ -1256,3 +1256,374 @@ button {
     transition-duration: .01ms !important;
   }
 }
+
+
+/* =========================================
+   PDFS — PREMIUM ANIMATION & DESIGN UPGRADE
+   Paste this code at the END of style.css
+========================================= */
+
+/* Premium background atmosphere */
+body {
+  background-image:
+    radial-gradient(ellipse at 8% 8%, rgba(114, 85, 233, 0.075), transparent 32%),
+    radial-gradient(ellipse at 92% 35%, rgba(88, 59, 208, 0.055), transparent 30%);
+  background-attachment: fixed;
+  overflow-x: hidden;
+}
+
+/* Smooth global transitions */
+a,
+button,
+.tool-card,
+.step-card,
+.about-card,
+.feature-window,
+.floating-file,
+.modal-panel,
+.cta-card {
+  transition:
+    transform 0.35s ease,
+    box-shadow 0.35s ease,
+    background-color 0.35s ease,
+    border-color 0.35s ease,
+    color 0.3s ease;
+}
+
+h1, h2, h3 {
+  text-wrap: balance;
+}
+
+/* Premium entrance animations */
+@keyframes premiumFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes premiumFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes premiumFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes premiumGlow {
+  0%, 100% {
+    box-shadow: 0 10px 35px rgba(114, 85, 233, 0.10);
+  }
+  50% {
+    box-shadow: 0 16px 45px rgba(114, 85, 233, 0.20);
+  }
+}
+
+@keyframes premiumShine {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* Hero section */
+.hero {
+  background-image:
+    radial-gradient(ellipse at 80% 20%, rgba(114, 85, 233, 0.10), transparent 38%),
+    radial-gradient(ellipse at 10% 90%, rgba(88, 59, 208, 0.055), transparent 35%);
+}
+
+.hero .eyebrow {
+  animation: premiumFadeUp 0.7s ease both;
+}
+
+.hero h1 {
+  animation: premiumFadeUp 0.8s ease 0.12s both;
+}
+
+.hero-copy {
+  animation: premiumFadeUp 0.8s ease 0.24s both;
+}
+
+.hero-buttons {
+  animation: premiumFadeUp 0.8s ease 0.36s both;
+}
+
+.hero-trust {
+  animation: premiumFadeIn 1s ease 0.55s both;
+}
+
+.hero-art {
+  animation: premiumFadeIn 1.1s ease 0.2s both;
+}
+
+/* Hero illustration gets a gentle floating effect */
+.hero-document {
+  animation: premiumFloat 5s ease-in-out infinite;
+}
+
+/* Buttons */
+button,
+.btn,
+.nav-cta,
+.hero-buttons a {
+  position: relative;
+  overflow: hidden;
+}
+
+button:hover,
+.btn:hover,
+.nav-cta:hover,
+.hero-buttons a:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(88, 59, 208, 0.20);
+}
+
+button:active,
+.btn:active {
+  transform: translateY(-1px) scale(0.98);
+}
+
+/* Tool cards */
+.tool-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.tool-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--purple),
+    #b7a8ff,
+    transparent
+  );
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.45s ease;
+}
+
+.tool-card:hover::before {
+  transform: scaleX(1);
+}
+
+.tool-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(114, 85, 233, 0.35);
+  box-shadow: 0 18px 45px rgba(35, 27, 85, 0.12);
+}
+
+/* Tool icons */
+.tool-card .tool-icon,
+.tool-card .icon {
+  transition: transform 0.4s ease, background 0.4s ease;
+}
+
+.tool-card:hover .tool-icon,
+.tool-card:hover .icon {
+  transform: rotate(-7deg) scale(1.10);
+}
+
+/* Section backgrounds */
+.tools-section {
+  background-image:
+    radial-gradient(ellipse at 5% 20%, rgba(114, 85, 233, 0.055), transparent 32%),
+    radial-gradient(ellipse at 95% 85%, rgba(88, 59, 208, 0.045), transparent 30%);
+}
+
+.how-section {
+  background-image:
+    radial-gradient(ellipse at 50% 50%, rgba(114, 85, 233, 0.07), transparent 55%);
+}
+
+.about-section {
+  background-image:
+    radial-gradient(ellipse at 90% 20%, rgba(114, 85, 233, 0.07), transparent 35%);
+}
+
+/* Feature area */
+.feature-window {
+  box-shadow: 0 20px 55px rgba(31, 25, 75, 0.10);
+}
+
+.feature-window:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 26px 65px rgba(31, 25, 75, 0.15);
+}
+
+/* Steps */
+.step-card {
+  position: relative;
+}
+
+.step-card:hover {
+  transform: translateY(-7px);
+  box-shadow: 0 16px 38px rgba(88, 59, 208, 0.12);
+}
+
+/* Stats section */
+.stats-section {
+  position: relative;
+  overflow: hidden;
+}
+
+.stats-section::before {
+  content: "";
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  top: -180px;
+  right: -80px;
+  background: rgba(255, 255, 255, 0.10);
+  filter: blur(5px);
+  pointer-events: none;
+}
+
+.stats-section::after {
+  content: "";
+  position: absolute;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  bottom: -160px;
+  left: -60px;
+  background: rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+}
+
+/* About card */
+.about-card {
+  box-shadow: 0 16px 45px rgba(35, 27, 85, 0.07);
+}
+
+.about-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 22px 55px rgba(35, 27, 85, 0.12);
+}
+
+/* Call to action */
+.cta-card {
+  position: relative;
+  overflow: hidden;
+  background-image:
+    radial-gradient(circle at 90% 15%, rgba(255,255,255,0.16), transparent 30%),
+    linear-gradient(120deg, rgba(114,85,233,0.04), transparent 55%);
+}
+
+.cta-card:hover {
+  box-shadow: 0 22px 55px rgba(88, 59, 208, 0.16);
+}
+
+/* Floating file decorations */
+.floating-file {
+  animation: premiumFloat 5s ease-in-out infinite;
+}
+
+.floating-file:nth-child(2) {
+  animation-delay: 1s;
+}
+
+.floating-file:nth-child(3) {
+  animation-delay: 2s;
+}
+
+/* Modal entrance */
+.modal-panel {
+  animation: premiumFadeUp 0.35s ease both;
+}
+
+/* Scroll reveal — keeps compatibility with existing JS */
+.reveal {
+  transition:
+    opacity 0.75s ease,
+    transform 0.75s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Navbar polish */
+nav {
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.nav-links a {
+  position: relative;
+}
+
+.nav-links a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  width: 100%;
+  height: 2px;
+  background: var(--purple);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease;
+}
+
+.nav-links a:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* Footer polish */
+footer a {
+  transition: color 0.25s ease, padding-left 0.25s ease;
+}
+
+footer a:hover {
+  color: #c8bcff;
+  padding-left: 4px;
+}
+
+/* Keyboard accessibility */
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid rgba(114, 85, 233, 0.55);
+  outline-offset: 4px;
+}
+
+/* Mobile performance and layout safety */
+@media (max-width: 760px) {
+  .tool-card:hover,
+  .step-card:hover,
+  .about-card:hover,
+  .feature-window:hover {
+    transform: translateY(-3px);
+  }
+
+  .hero-document,
+  .floating-file {
+    animation-duration: 7s;
+  }
+}
+
+/* Respect reduced-motion settings */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
