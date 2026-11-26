@@ -3136,3 +3136,16 @@ header.navbar .nav-links a {
   }
 }
 
+.premium-footer {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  background: #242536 !important;
+  box-shadow: none !important;
+}
+
+.premium-footer::before,
+.premium-footer::after {
+  border-radius: 0 !important;
+}
