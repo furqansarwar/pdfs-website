@@ -2380,24 +2380,17 @@ header.navbar .nav-links a {
 .premium-footer {
   position: relative;
   overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
   padding: 75px 7% 25px;
-  background: #11132d;
+  background: #292a38;
   color: #fff;
-  border-radius: 28px 28px 0 0;
+  border-radius: 0 !important;
   isolation: isolate;
 }
 
 .footer-glow {
-  position: absolute;
-  width: 400px;
-  height: 300px;
-  right: 5%;
-  top: -180px;
-  background: #7655ed;
-  filter: blur(120px);
-  opacity: .25;
-  z-index: -1;
-  pointer-events: none;
+  display: none;
 }
 
 .footer-main {
@@ -2424,21 +2417,10 @@ header.navbar .nav-links a {
 }
 
 .footer-brand p {
-  color: #b4b5ce;
+  color: #c2c2ce;
   line-height: 1.8;
   max-width: 290px;
   margin: 15px 0 22px;
-}
-
-.footer-tag {
-  display: inline-block;
-  color: #c2b4ff;
-  border: 1px solid #6551a8;
-  background: rgba(125, 94, 225, .12);
-  border-radius: 30px;
-  padding: 9px 14px;
-  font-size: 11px;
-  letter-spacing: 1.5px;
 }
 
 .footer-column {
@@ -2454,7 +2436,7 @@ header.navbar .nav-links a {
 }
 
 .footer-column a {
-  color: #aeb0ca;
+  color: #c2c2ce;
   text-decoration: none;
   font-size: 13px;
   transition: .3s ease;
@@ -2468,7 +2450,7 @@ header.navbar .nav-links a {
 .footer-bottom {
   max-width: 1250px;
   margin: auto;
-  border-top: 1px solid rgba(255,255,255,.12);
+  border-top: 1px solid rgba(255,255,255,.15);
   padding-top: 22px;
   display: flex;
   justify-content: space-between;
@@ -2477,7 +2459,7 @@ header.navbar .nav-links a {
 }
 
 .footer-bottom p {
-  color: #9295b3;
+  color: #b5b5c2;
   font-size: 12px;
   margin: 0;
   line-height: 1.8;
@@ -2493,9 +2475,22 @@ header.navbar .nav-links a {
 @media (max-width: 480px) {
   .premium-footer {
     padding: 55px 22px 22px;
-    border-radius: 22px 22px 0 0;
+    border-radius: 0 !important;
   }
 
+  .footer-main {
+    grid-template-columns: 1fr 1fr;
+    gap: 30px 15px;
+  }
+
+  .footer-brand {
+    grid-column: 1 / -1;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+  }
+}
   .footer-main {
     grid-template-columns: 1fr 1fr;
     gap: 30px 15px;
