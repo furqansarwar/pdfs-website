@@ -1714,3 +1714,453 @@ body {
   }
 }
 
+
+
+/* =========================================
+   PDFS — REAL PREMIUM VISUAL UPGRADE
+   Uses the actual classes in index.html
+========================================= */
+
+:root {
+  --premium-purple: #7255e9;
+  --premium-lilac: #eee9ff;
+  --premium-shadow: 0 22px 60px rgba(66, 45, 155, .13);
+}
+
+/* Whole page atmosphere */
+body {
+  background:
+    radial-gradient(ellipse at 5% 12%, #eee9ff 0%, transparent 28%),
+    radial-gradient(ellipse at 95% 38%, #f0edff 0%, transparent 26%),
+    #fff;
+}
+
+section {
+  position: relative;
+}
+
+/* Hero background and decoration */
+.hero {
+  background:
+    radial-gradient(ellipse at 85% 45%, rgba(130, 103, 255, .19), transparent 43%),
+    radial-gradient(ellipse at 5% 95%, rgba(190, 174, 255, .18), transparent 36%);
+}
+
+.hero-content .eyebrow {
+  box-shadow: 0 7px 24px rgba(114, 85, 233, .09);
+}
+
+.hero-content h1 span,
+.section-heading h2 span {
+  background-size: 200% auto;
+  animation: pdfsTextShine 5s linear infinite;
+}
+
+@keyframes pdfsTextShine {
+  to { background-position: 200% center; }
+}
+
+.art-glow {
+  width: 430px;
+  height: 430px;
+  background: radial-gradient(circle, #d9ceff 0%, #eee9ff 42%, transparent 72%);
+  animation: pdfsGlowPulse 5s ease-in-out infinite;
+}
+
+@keyframes pdfsGlowPulse {
+  0%, 100% { transform: scale(.94); opacity: .72; }
+  50% { transform: scale(1.08); opacity: 1; }
+}
+
+.hero-document {
+  box-shadow: 0 38px 90px rgba(68, 49, 165, .25);
+}
+
+.pdf-symbol {
+  animation: pdfsIconFloat 3.5s ease-in-out infinite;
+}
+
+@keyframes pdfsIconFloat {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-7px) rotate(3deg); }
+}
+
+.floating-file {
+  border: 1px solid rgba(114, 85, 233, .12);
+  box-shadow: 0 18px 45px rgba(48, 35, 110, .14);
+  transition: transform .4s ease, box-shadow .4s ease;
+}
+
+.floating-file:hover {
+  transform: translateY(-12px) scale(1.07);
+  box-shadow: 0 25px 55px rgba(83, 57, 190, .22);
+}
+
+/* Trust strip */
+.trust-strip {
+  background: linear-gradient(100deg, #f0ecff, #fff 48%, #f0ecff);
+  border-color: #e6deff;
+  box-shadow: 0 8px 30px rgba(80, 55, 160, .04);
+}
+
+.trust-strip div {
+  transition: transform .35s ease, color .35s ease;
+}
+
+.trust-strip div:hover {
+  color: var(--premium-purple);
+  transform: translateY(-5px);
+}
+
+/* Tools area — richer background */
+.tools-section {
+  background:
+    radial-gradient(ellipse at 0% 15%, rgba(132, 105, 255, .12), transparent 35%),
+    radial-gradient(ellipse at 100% 90%, rgba(176, 157, 255, .12), transparent 35%);
+}
+
+.section-heading {
+  position: relative;
+}
+
+.section-kicker {
+  padding: 9px 14px;
+  border-radius: 30px;
+  background: #f0ecff;
+  border: 1px solid #e5ddff;
+}
+
+/* Premium tool cards */
+.tool-card {
+  border: 1px solid #e8e2fb;
+  border-radius: 19px;
+  background: linear-gradient(145deg, #fff 55%, #faf8ff);
+  box-shadow: 0 8px 25px rgba(43, 34, 100, .055);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.tool-card::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: linear-gradient(135deg, #f0ebff, transparent 70%);
+  opacity: 0;
+  transition: opacity .4s ease;
+}
+
+.tool-card::after {
+  content: "";
+  position: absolute;
+  height: 3px;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(90deg, #6041d7, #b6a4ff, #6041d7);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .4s ease;
+}
+
+.tool-card:hover {
+  transform: translateY(-10px);
+  border-color: #bbaaff;
+  box-shadow: 0 24px 50px rgba(74, 49, 165, .16);
+}
+
+.tool-card:hover::before {
+  opacity: 1;
+}
+
+.tool-card:hover::after {
+  transform: scaleX(1);
+}
+
+.tool-icon {
+  box-shadow: 0 7px 17px rgba(75, 55, 160, .07);
+  transition: transform .4s ease, box-shadow .4s ease;
+}
+
+.tool-card:hover .tool-icon {
+  transform: rotate(-9deg) scale(1.13);
+  box-shadow: 0 12px 25px rgba(75, 55, 160, .16);
+}
+
+.tool-card strong {
+  transition: color .3s ease;
+}
+
+.tool-card:hover strong {
+  color: #6545db;
+}
+
+.tool-arrow {
+  transition: transform .3s ease, color .3s ease;
+}
+
+.tool-card:hover .tool-arrow {
+  transform: translate(5px, -5px);
+  color: #6545db;
+}
+
+/* Feature section */
+.feature-section {
+  background:
+    radial-gradient(ellipse at 12% 50%, rgba(151, 129, 255, .25), transparent 40%),
+    radial-gradient(ellipse at 90% 15%, rgba(202, 190, 255, .32), transparent 38%),
+    linear-gradient(120deg, #f0ecff, #f8f9ff, #f0ecff);
+  border-top: 1px solid #e9e2ff;
+  border-bottom: 1px solid #e9e2ff;
+}
+
+.feature-window {
+  box-shadow: 0 30px 75px rgba(53, 39, 130, .18);
+  transition: transform .5s ease, box-shadow .5s ease;
+}
+
+.feature-window:hover {
+  transform: rotate(0deg) translateY(-9px);
+  box-shadow: 0 38px 90px rgba(53, 39, 130, .24);
+}
+
+.window-upload {
+  transition: background .35s ease, border-color .35s ease;
+}
+
+.window-upload:hover {
+  background: #f0ebff;
+  border-color: #947bfa;
+}
+
+.feature-float {
+  animation: pdfsFloatCard 4s ease-in-out infinite;
+  border: 1px solid #eee9ff;
+}
+
+@keyframes pdfsFloatCard {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+.feature-list > div {
+  padding: 11px;
+  margin-left: -11px;
+  border-radius: 13px;
+  transition: background .3s ease, transform .3s ease;
+}
+
+.feature-list > div:hover {
+  background: rgba(255,255,255,.85);
+  transform: translateX(8px);
+}
+
+/* Steps section */
+.how-section {
+  background:
+    radial-gradient(ellipse at 50% 55%, rgba(139, 112, 255, .12), transparent 55%);
+}
+
+.step-card {
+  border-radius: 20px;
+  background: linear-gradient(145deg, #fff, #faf8ff);
+  box-shadow: 0 10px 28px rgba(43, 34, 100, .06);
+  transition: transform .4s ease, box-shadow .4s ease, border-color .4s ease;
+}
+
+.step-card:hover {
+  transform: translateY(-11px);
+  border-color: #b9a7ff;
+  box-shadow: var(--premium-shadow);
+}
+
+.step-icon {
+  box-shadow: 0 8px 20px rgba(114, 85, 233, .10);
+  transition: transform .4s ease;
+}
+
+.step-card:hover .step-icon {
+  transform: rotate(9deg) scale(1.12);
+}
+
+/* Stats section */
+.stats-section {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 10% 20%, rgba(255,255,255,.18), transparent 28%),
+    radial-gradient(circle at 90% 80%, rgba(255,255,255,.16), transparent 30%),
+    linear-gradient(115deg, #8062f0, #5939cf 55%, #3e279f);
+}
+
+.stats-section::before,
+.stats-section::after {
+  content: "";
+  position: absolute;
+  width: 260px;
+  height: 260px;
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.stats-section::before {
+  top: -170px;
+  right: 8%;
+  box-shadow: 0 0 0 25px rgba(255,255,255,.035),
+              0 0 0 50px rgba(255,255,255,.025);
+}
+
+.stats-section::after {
+  bottom: -200px;
+  left: 8%;
+  box-shadow: 0 0 0 25px rgba(255,255,255,.035),
+              0 0 0 50px rgba(255,255,255,.025);
+}
+
+.stats-grid > div {
+  position: relative;
+  z-index: 1;
+  transition: transform .35s ease;
+}
+
+.stats-grid > div:hover {
+  transform: translateY(-8px);
+}
+
+.stats-grid strong {
+  text-shadow: 0 7px 25px rgba(20, 10, 80, .2);
+}
+
+/* About section */
+.about-section {
+  background:
+    radial-gradient(ellipse at 5% 55%, rgba(139, 112, 255, .13), transparent 40%);
+}
+
+.about-card {
+  border: 1px solid #e6deff;
+  background:
+    radial-gradient(circle at 85% 15%, rgba(255,255,255,.95), transparent 35%),
+    linear-gradient(115deg, #eee9ff, #f3f5ff);
+  box-shadow: 0 20px 55px rgba(70, 50, 150, .10);
+  transition: transform .4s ease, box-shadow .4s ease;
+}
+
+.about-card:hover {
+  transform: translateY(-7px);
+  box-shadow: 0 30px 75px rgba(70, 50, 150, .17);
+}
+
+.about-mark {
+  animation: pdfsMarkFloat 5s ease-in-out infinite;
+  box-shadow: 0 30px 65px rgba(75, 48, 180, .32);
+}
+
+@keyframes pdfsMarkFloat {
+  0%, 100% { transform: rotate(4deg) translateY(0); }
+  50% { transform: rotate(1deg) translateY(-9px); }
+}
+
+/* CTA */
+.cta-card {
+  background:
+    radial-gradient(circle at 85% 10%, rgba(135, 108, 255, .38), transparent 35%),
+    linear-gradient(115deg, #171b3b, #30216f 60%, #4931a5);
+  box-shadow: 0 25px 65px rgba(54, 35, 130, .22);
+  transition: transform .4s ease, box-shadow .4s ease;
+}
+
+.cta-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 35px 80px rgba(54, 35, 130, .30);
+}
+
+/* Buttons */
+.primary-btn,
+.nav-cta,
+.cta-button,
+.secondary-btn {
+  transition: transform .3s ease, box-shadow .3s ease, background .3s ease;
+}
+
+.primary-btn:hover,
+.nav-cta:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 35px rgba(91, 63, 200, .30);
+}
+
+.secondary-btn:hover {
+  transform: translateY(-4px);
+  background: #f4f0ff;
+}
+
+/* Footer */
+.footer {
+  background:
+    radial-gradient(ellipse at 80% 0%, rgba(112, 85, 233, .24), transparent 40%),
+    #141832;
+}
+
+.footer-column a {
+  transition: color .3s ease, transform .3s ease;
+}
+
+.footer-column a:hover {
+  color: #d0c4ff;
+  transform: translateX(6px);
+}
+
+/* Modal polish */
+.modal-panel {
+  border: 1px solid #e9e2ff;
+  box-shadow: 0 35px 100px rgba(10, 8, 40, .38);
+}
+
+.upload-zone {
+  transition: transform .3s ease, background .3s ease, border-color .3s ease;
+}
+
+.upload-zone:hover,
+.upload-zone.dragover {
+  transform: scale(1.015);
+  background: #f0ebff;
+  border-color: var(--premium-purple);
+}
+
+/* Scroll reveal: keep original JS behavior */
+.reveal {
+  transition:
+    opacity .8s ease,
+    transform .8s cubic-bezier(.2,.7,.2,1);
+}
+
+/* Mobile safety */
+@media (max-width: 760px) {
+  .art-glow {
+    width: 300px;
+    height: 300px;
+  }
+
+  .tool-card:hover,
+  .step-card:hover,
+  .about-card:hover,
+  .cta-card:hover {
+    transform: translateY(-4px);
+  }
+
+  .feature-section {
+    background: linear-gradient(145deg, #f0ecff, #f8f9ff);
+  }
+}
+
+/* Motion accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
