@@ -3163,3 +3163,35 @@ footer.footer::before {
     border-radius: 0 !important;
   }
 }
+/* RESTORE CTA SECTION */
+.cta-section {
+  width: 100%;
+  background: #ffffff;
+  padding: 60px 5%;
+  box-sizing: border-box;
+}
+
+.cta-section .cta-card {
+  background: #ffffff !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 45px 5% !important;
+}
+
+.cta-section .cta-card h2 {
+  color: #171b3b !important;
+}
+
+.cta-section .cta-card h2 span {
+  color: #7255e9 !important;
+}
+
+.cta-section .cta-card p {
+  color: #777d95 !important;
+}
+
+.cta-section .cta-button {
+  background: #7255e9 !important;
+  color: #ffffff !important;
+}
