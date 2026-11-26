@@ -2850,3 +2850,14 @@ header.navbar .nav-links a {
 .footer .footer-tag {
   display: none !important;
 }
+
+.footer {
+  background: linear-gradient(135deg, #171717, #252525) !important;
+}
+
+.footer .footer-bottom {
+  background: transparent !important;
+  color: #d0d0d0 !important;
+  border-top: 1px solid rgba(255,255,255,.15);
+}
+
