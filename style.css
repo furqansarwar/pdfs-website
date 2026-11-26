@@ -2787,3 +2787,30 @@ header.navbar .nav-links a {
   .cta-highlight-item .highlight-number { font-size: 20px; }
   .cta-highlight-item .highlight-label { font-size: 11px; }
 }
+
+
+/* ACCESSIBILITY AND RESPONSIVE POLISH */
+.skip-link {
+  position: fixed; top: 12px; left: 12px; z-index: 2000;
+  padding: 12px 16px; border-radius: 10px;
+  background: #171b3b; color: #fff; font-weight: 700;
+  transform: translateY(-160%); transition: transform .2s ease;
+}
+.skip-link:focus { transform: translateY(0); }
+:where(a, button, input, select, summary):focus-visible {
+  outline: 3px solid #9b83ff; outline-offset: 3px;
+}
+#toolOptions small {
+  display: block; margin-top: 7px; color: #777d95;
+  font-size: 12px; line-height: 1.6;
+}
+.tool-modal .modal-panel { max-height: min(88vh, 820px); overflow-y: auto; }
+@media (max-width: 600px) {
+  .tool-modal .modal-panel { width: min(100%, 520px); margin: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important; animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important; transition-duration: .01ms !important;
+  }
+}
