@@ -2266,3 +2266,15 @@ header.navbar .brand {
 header.navbar .nav-links a {
   color: #252944 !important;
 }
+
+/* FOUNDER NAME WHITE COLOR */
+
+.founder,
+.founder-name,
+.founder-text,
+.brand-founder,
+.brand small,
+.navbar small {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
