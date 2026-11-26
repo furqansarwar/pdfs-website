@@ -2907,3 +2907,87 @@ header.navbar .nav-links a {
   max-width: 850px;
   margin: 0 auto;
 }
+
+/* PDFS PREMIUM STATS SECTION */
+.stats-section {
+  position: relative;
+  padding: 55px 20px;
+  margin: 35px 0;
+  background: linear-gradient(120deg, #f8f6ff, #ffffff, #f1edff);
+  border-top: 1px solid #ece6ff;
+  border-bottom: 1px solid #ece6ff;
+  overflow: hidden;
+}
+
+.stats-section::before {
+  content: "";
+  position: absolute;
+  width: 300px;
+  height: 200px;
+  left: 35%;
+  top: -150px;
+  background: #9474ff;
+  filter: blur(100px);
+  opacity: .15;
+  pointer-events: none;
+}
+
+.stats-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 25px;
+  text-align: center;
+}
+
+.stats-grid > div {
+  padding: 20px 12px;
+  position: relative;
+  transition: transform .3s ease;
+}
+
+.stats-grid > div:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  right: -13px;
+  top: 20%;
+  height: 60%;
+  width: 1px;
+  background: #ded6f5;
+}
+
+.stats-grid > div:hover {
+  transform: translateY(-6px);
+}
+
+.stats-grid strong {
+  display: block;
+  font-size: clamp(32px, 4vw, 45px);
+  font-weight: 850;
+  letter-spacing: -2px;
+  color: #7255e9;
+  margin-bottom: 9px;
+}
+
+.stats-grid span {
+  display: block;
+  color: #74718d;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+@media (max-width: 650px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .stats-grid > div:nth-child(2)::after {
+    display: none;
+  }
+
+  .stats-grid > div {
+    padding: 20px 8px;
+  }
+}
+
