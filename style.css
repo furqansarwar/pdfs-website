@@ -2710,3 +2710,139 @@ header.navbar .nav-links a {
     align-self: flex-end;
   }
 }
+
+
+/* PDFS PREMIUM FAQ */
+.faq-section {
+  position: relative;
+  padding: 100px 20px;
+  background: linear-gradient(180deg, #ffffff 0%, #f7f5ff 100%);
+  overflow: hidden;
+}
+
+.faq-section::before {
+  content: "";
+  position: absolute;
+  width: 350px;
+  height: 350px;
+  top: 100px;
+  left: -220px;
+  background: #8b6cff;
+  filter: blur(130px);
+  opacity: .12;
+  pointer-events: none;
+}
+
+.faq-container {
+  position: relative;
+  max-width: 850px;
+  margin: 45px auto 0;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.faq-item {
+  background: rgba(255,255,255,.92);
+  border: 1px solid #e9e4fa;
+  border-radius: 17px;
+  padding: 0 24px;
+  box-shadow: 0 5px 22px rgba(45,32,95,.045);
+  transition: border-color .3s ease, box-shadow .3s ease,
+              transform .3s ease;
+}
+
+.faq-item:hover {
+  border-color: #b8a5ff;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(91,65,180,.09);
+}
+
+.faq-item summary {
+  position: relative;
+  list-style: none;
+  cursor: pointer;
+  padding: 23px 35px 23px 0;
+  color: #22213c;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-item summary::after {
+  content: "+";
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 29px;
+  height: 29px;
+  display: grid;
+  place-items: center;
+  color: #7655e9;
+  background: #f0ebff;
+  border-radius: 9px;
+  font-size: 21px;
+  transition: .3s ease;
+}
+
+.faq-item[open] {
+  border-color: #a994ff;
+  box-shadow: 0 12px 30px rgba(91,65,180,.1);
+}
+
+.faq-item[open] summary::after {
+  content: "−";
+  color: #fff;
+  background: #7655e9;
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.faq-item p {
+  margin: 0;
+  padding: 0 35px 23px 0;
+  color: #77758d;
+  font-size: 14px;
+  line-height: 1.8;
+  animation: faqReveal .3s ease;
+}
+
+@keyframes faqReveal {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 600px) {
+  .faq-section {
+    padding: 70px 18px;
+  }
+
+  .faq-container {
+    margin-top: 32px;
+    gap: 12px;
+  }
+
+  .faq-item {
+    padding: 0 17px;
+    border-radius: 14px;
+  }
+
+  .faq-item summary {
+    font-size: 14px;
+    padding: 20px 35px 20px 0;
+  }
+
+  .faq-item p {
+    font-size: 13px;
+    padding-bottom: 20px;
+  }
+}
