@@ -1038,6 +1038,7 @@ button {
 /* MODAL */
 
 .tool-modal {
+  display: flex;
   display: none;
   position: fixed;
   inset: 0;
