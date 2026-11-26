@@ -2352,6 +2352,32 @@ header nav a:focus-visible,
 }
 
 
+/* FIX NAVBAR BRAND VISIBILITY */
+
+header .logo,
+header .brand,
+header .nav-logo,
+.navbar .logo,
+.navbar .brand,
+.navbar .nav-logo {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  color: #252944 !important;
+  position: relative;
+  z-index: 1001;
+}
+
+header .logo *,
+header .brand *,
+header .nav-logo *,
+.navbar .logo *,
+.navbar .brand *,
+.navbar .nav-logo * {
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
 
 
 
