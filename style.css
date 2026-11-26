@@ -2274,3 +2274,14 @@ nav a::after {
 }
 
 
+
+/* RESTORE CLEAN WHITE HEADER */
+
+header,
+.navbar,
+nav {
+  background: #ffffff !important;
+  background-image: none !important;
+  box-shadow: 0 3px 15px rgba(30, 25, 60, 0.06) !important;
+  border-bottom: 1px solid #eeeeF5 !important;
+}
