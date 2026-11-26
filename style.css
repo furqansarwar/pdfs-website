@@ -2846,3 +2846,7 @@ header.navbar .nav-links a {
     padding-bottom: 20px;
   }
 }
+
+.footer .footer-tag {
+  display: none !important;
+}
