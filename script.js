@@ -69,22 +69,22 @@ const tools = {
   },
   split: {
     title: "Split PDF",
-    description: "Extract individual pages or a selected page range.",
+    description: "Extract selected page ranges into a new PDF. Use formats like 1-3,5,7-9.",
     accept: ".pdf"
   },
   compress: {
     title: "Compress PDF",
-    description: "Optimize your PDF by removing unnecessary document data.",
+    description: "Apply basic PDF optimization. Image-heavy files may not become smaller.",
     accept: ".pdf"
   },
   "pdf-word": {
     title: "PDF to Word",
-    description: "Extract PDF text into an editable Word document.",
+    description: "Export selectable PDF text into an editable DOCX file. Original layout may not be preserved.",
     accept: ".pdf"
   },
   "word-pdf": {
     title: "Word to PDF",
-    description: "Convert a DOCX document into a PDF using its extracted text.",
+    description: "Create a simple PDF from DOCX text. Original formatting may not be preserved.",
     accept: ".docx"
   },
   "pdf-jpg": {
@@ -100,7 +100,7 @@ const tools = {
   },
   "pdf-excel": {
     title: "PDF to Excel",
-    description: "Extract PDF text into an Excel spreadsheet.",
+    description: "Export extracted page text into spreadsheet rows. Complex tables may need cleanup.",
     accept: ".pdf"
   },
   rotate: {
@@ -120,7 +120,7 @@ const tools = {
   },
   unlock: {
     title: "Unlock PDF",
-    description: "Remove supported PDF restrictions. You must have permission to modify the document.",
+    description: "Attempt to open supported restricted PDFs. Only use this for documents you are authorized to modify.",
     accept: ".pdf"
   }
 };
@@ -152,7 +152,8 @@ function openTool(name) {
   if (name === "split") {
     toolOptions.innerHTML = `
       <label>Page range (example: 1-3)
-        <input type="text" id="pageRange" placeholder="Leave blank for all pages">
+        <input type="text" id="pageRange" placeholder="Example: 1-3,5,7-9" aria-describedby="pageRangeHelp">
+        <small id="pageRangeHelp">Enter page numbers and ranges separated by commas. Example: 1-3,5,7-9.</small>
       </label>`;
   }
 
@@ -186,6 +187,7 @@ function openTool(name) {
   modal.classList.add("open");
   modal.setAttribute("aria-hidden", "false");
   document.body.style.overflow = "hidden";
+  modalTitle.focus?.();
 }
 
 /* CLOSE TOOL */
@@ -194,13 +196,21 @@ function closeTool() {
   modal.classList.remove("open");
   modal.setAttribute("aria-hidden", "true");
   document.body.style.overflow = "";
+  $("#modalClose")?.blur();
 }
 
 $("#modalClose")?.addEventListener("click", closeTool);
 $("#modalBackdrop")?.addEventListener("click", closeTool);
 
 document.addEventListener("keydown", event => {
-  if (event.key === "Escape") closeTool();
+  if (event.key === "Escape") {
+    if (modal.classList.contains("open")) closeTool();
+    if (navLinks?.classList.contains("active")) {
+      navLinks.classList.remove("active");
+      menuToggle?.setAttribute("aria-expanded", "false");
+      menuToggle?.setAttribute("aria-label", "Open menu");
+    }
+  }
 });
 
 /* FILE SELECTION */
@@ -365,27 +375,30 @@ async function processTool() {
       const source = await readPDF(file);
       const total = source.getPageCount();
       const range = $("#pageRange").value.trim();
+      if (!range) throw new Error("Enter the page numbers or ranges you want to extract.");
 
-      let indexes = [];
+      const indexes = [];
+      const seen = new Set();
+      const parts = range.split(",");
 
-      if (!range) {
-        indexes = source.getPageIndices();
-      } else {
-        const match = range.match(/^(\d+)\s*-\s*(\d+)$/);
-
-        if (!match) throw new Error("Enter a valid range, e.g. 1-3.");
+      for (const part of parts) {
+        const token = part.trim();
+        const match = token.match(/^(\d+)(?:\s*-\s*(\d+))?$/);
+        if (!match) throw new Error("Use page numbers or ranges like 1-3,5,7-9.");
 
         const start = Number(match[1]);
-        const end = Number(match[2]);
+        const end = match[2] ? Number(match[2]) : start;
 
         if (start < 1 || end > total || start > end) {
-          throw new Error("Page range is outside the document.");
+          throw new Error("One or more selected pages are outside this document.");
         }
 
-        indexes = Array.from(
-          { length: end - start + 1 },
-          (_, i) => start - 1 + i
-        );
+        for (let page = start; page <= end; page++) {
+          if (!seen.has(page)) {
+            seen.add(page);
+            indexes.push(page - 1);
+          }
+        }
       }
 
       const output = await PDFLib.PDFDocument.create();
