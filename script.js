@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
     fileName.textContent = "Choose your file";
     process.disabled = true;
     status.textContent = "";
-    modal.classList.add("active");
+    modal.classList.add("show");
     modal.setAttribute("aria-hidden", "false");
   }
 
@@ -70,7 +70,7 @@ $$(".tool-card").forEach((card, index) => {
 });
 
   function closeTool() {
-    modal.classList.remove("active");
+    modal.classList.remove("show");
     modal.setAttribute("aria-hidden", "true");
   }
   $("#modalClose")?.addEventListener("click", closeTool);
