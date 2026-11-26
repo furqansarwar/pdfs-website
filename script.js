@@ -1,473 +1,707 @@
 
-document.addEventListener("DOMContentLoaded", () => {
-  const $ = (selector) => document.querySelector(selector);
-
-  const modal = $("#toolModal");
-  const modalTitle = $("#modalTitle");
-  const modalDescription = $("#modalDescription");
-  const modalClose = $("#modalClose");
-  const modalBackdrop = $("#modalBackdrop");
-  const fileInput = $("#fileInput");
-  const fileName = $("#fileName");
-  const processBtn = $("#processBtn");
-  const modalStatus = $("#modalStatus");
-  const toolOptions = $("#toolOptions");
-  const menuToggle = $("#menuToggle");
-  const navLinks = $("#navLinks");
-
-  let currentTool = "";
-  let selectedFiles = [];
-
-  const tools = {
-    merge: ["Merge PDF", "Combine two or more PDF files into one.", ".pdf", true],
-    split: ["Split PDF", "Extract a page or a range of pages.", ".pdf", false],
-    compress: ["Compress PDF", "Save an optimized copy of your PDF.", ".pdf", false],
-    "pdf-word": ["PDF to Word", "Extract text from a PDF into a text document. Formatting may not be preserved.", ".pdf", false],
-    "word-pdf": ["Word to PDF", "Convert a DOCX document's text into a PDF. Complex formatting may not be preserved.", ".docx", false],
-    "pdf-jpg": ["PDF to JPG", "Convert PDF pages into JPG images.", ".pdf", false],
-    "jpg-pdf": ["JPG to PDF", "Combine JPG or PNG images into a PDF.", ".jpg,.jpeg,.png", true],
-    "pdf-excel": ["PDF to Excel", "Export extracted PDF text into an Excel spreadsheet.", ".pdf", false],
-    rotate: ["Rotate PDF", "Rotate every page of your PDF.", ".pdf", false],
-    watermark: ["Watermark PDF", "Add a custom text watermark to your PDF.", ".pdf", false],
-    protect: ["Protect PDF", "Password protection is not available in this browser version yet.", ".pdf", false],
-    unlock: ["Unlock PDF", "Encrypted PDF unlocking is not available in this browser version yet.", ".pdf", false]
-  };
-
-  if (window.pdfjsLib) {
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-  }
-
-  function openModal(tool) {
-    if (!tools[tool]) return;
-
-    currentTool = tool;
-    selectedFiles = [];
-
-    modalTitle.textContent = tools[tool][0];
-    modalDescription.textContent = tools[tool][1];
-
-    fileInput.accept = tools[tool][2];
-    fileInput.multiple = tools[tool][3];
-
-    fileInput.value = "";
-    fileName.textContent = "Choose files from your device";
-    modalStatus.textContent = "";
-    toolOptions.innerHTML = "";
-
-    if (tool === "split") {
-      addOption("Pages (example: 1-3)", "pageRange", "1-3");
-    }
-
-    if (tool === "rotate") {
-      addOption("Rotation angle", "rotation", "90");
-    }
-
-    if (tool === "watermark") {
-      addOption("Watermark text", "watermarkText", "PDFS");
-    }
-
-    modal.classList.add("active");
-    modal.setAttribute("aria-hidden", "false");
-    document.body.style.overflow = "hidden";
-
-    updateButton();
-  }
-
-  function addOption(label, id, value) {
-    const wrapper = document.createElement("div");
-    wrapper.className = "option-field";
-
-    const text = document.createElement("label");
-    text.htmlFor = id;
-    text.textContent = label;
-
-    const input = document.createElement("input");
-    input.id = id;
-    input.type = "text";
-    input.value = value;
-
-    wrapper.append(text, input);
-    toolOptions.appendChild(wrapper);
-  }
-
-  function closeModal() {
-    modal.classList.remove("active");
-    modal.setAttribute("aria-hidden", "true");
-    document.body.style.overflow = "";
-  }
-
-  function updateButton() {
-    processBtn.disabled = selectedFiles.length === 0;
-    processBtn.innerHTML = "Process file <span>→</span>";
-
-    if (selectedFiles.length) {
-      fileName.textContent = selectedFiles.map(f => f.name).join(", ");
-    }
-  }
-
-  document.querySelectorAll("[data-tool]").forEach(button => {
-    button.addEventListener("click", () => {
-      openModal(button.dataset.tool);
-    });
-  });
-
-  fileInput.addEventListener("change", () => {
-    selectedFiles = Array.from(fileInput.files || []);
-    updateButton();
-    modalStatus.textContent = "";
-  });
-
-  modalClose.addEventListener("click", closeModal);
-  modalBackdrop.addEventListener("click", closeModal);
-
-  document.addEventListener("keydown", event => {
-    if (event.key === "Escape" && modal.classList.contains("active")) {
-      closeModal();
-    }
-  });
-
-  menuToggle.addEventListener("click", () => {
-    navLinks.classList.toggle("show");
-  });
-
-  navLinks.querySelectorAll("a").forEach(link => {
-    link.addEventListener("click", () => navLinks.classList.remove("show"));
-  });
-
-  function downloadBlob(blob, filename) {
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-
-    setTimeout(() => URL.revokeObjectURL(url), 1500);
-  }
-
-  function outputName(name, extension) {
-    return name.replace(/\.[^/.]+$/, "") + extension;
-  }
-
-  async function processTool() {
-    if (!selectedFiles.length) return;
-
-    processBtn.disabled = true;
-    processBtn.textContent = "Processing...";
-    modalStatus.textContent = "Please wait while your file is processing.";
-
-    try {
-      switch (currentTool) {
-        case "merge":
-          await mergePDF();
-          break;
-        case "split":
-          await splitPDF();
-          break;
-        case "compress":
-          await compressPDF();
-          break;
-        case "rotate":
-          await rotatePDF();
-          break;
-        case "watermark":
-          await watermarkPDF();
-          break;
-        case "jpg-pdf":
-          await imagesToPDF();
-          break;
-        case "pdf-jpg":
-          await pdfToJPG();
-          break;
-        case "pdf-word":
-          await pdfToText();
-          break;
-        case "word-pdf":
-          await wordToPDF();
-          break;
-        case "pdf-excel":
-          await pdfToExcel();
-          break;
-        case "protect":
-        case "unlock":
-          throw new Error("This feature is not available yet.");
-        default:
-          throw new Error("Unknown tool selected.");
-      }
-
-      modalStatus.textContent = "Your file has been processed successfully.";
-    } catch (error) {
-      console.error(error);
-      modalStatus.textContent = error.message || "Something went wrong. Please try again.";
-    } finally {
-      processBtn.disabled = false;
-      processBtn.innerHTML = "Process file <span>→</span>";
-    }
-  }
-
-  async function getPDF(file) {
-    const bytes = await file.arrayBuffer();
-    return PDFLib.PDFDocument.load(bytes);
-  }
-
-  async function mergePDF() {
-    if (selectedFiles.length < 2) {
-      throw new Error("Please select at least two PDF files.");
-    }
-
-    const merged = await PDFLib.PDFDocument.create();
-
-    for (const file of selectedFiles) {
-      const pdf = await getPDF(file);
-      const pages = await merged.copyPages(pdf, pdf.getPageIndices());
-      pages.forEach(page => merged.addPage(page));
-    }
-
-    const bytes = await merged.save();
-    downloadBlob(new Blob([bytes], { type: "application/pdf" }), "merged.pdf");
-  }
-
-  async function splitPDF() {
-    const pdf = await getPDF(selectedFiles[0]);
-    const range = ($("#pageRange")?.value || "1").trim();
-    const pages = [];
-
-    range.split(",").forEach(part => {
-      const values = part.trim().split("-").map(Number);
-
-      if (values.length === 1 && Number.isInteger(values[0])) {
-        pages.push(values[0]);
-      } else if (values.length === 2 && values.every(Number.isInteger)) {
-        for (let n = values[0]; n <= values[1]; n++) pages.push(n);
-      }
-    });
-
-    const uniquePages = [...new Set(pages)];
-
-    if (!uniquePages.length || uniquePages.some(n => n < 1 || n > pdf.getPageCount())) {
-      throw new Error("Enter valid page numbers. Example: 1-3");
-    }
-
-    const result = await PDFLib.PDFDocument.create();
-    const copied = await result.copyPages(pdf, uniquePages.map(n => n - 1));
-    copied.forEach(page => result.addPage(page));
-
-    downloadBlob(
-      new Blob([await result.save()], { type: "application/pdf" }),
-      "split.pdf"
-    );
-  }
-
-  async function compressPDF() {
-    const pdf = await getPDF(selectedFiles[0]);
-    const bytes = await pdf.save({ useObjectStreams: true });
-
-    downloadBlob(
-      new Blob([bytes], { type: "application/pdf" }),
-      outputName(selectedFiles[0].name, "-optimized.pdf")
-    );
-  }
-
-  async function rotatePDF() {
-    const pdf = await getPDF(selectedFiles[0]);
-    const angle = Number($("#rotation").value);
-
-    if (![90, 180, 270].includes(angle)) {
-      throw new Error("Choose 90, 180 or 270 degrees.");
-    }
-
-    pdf.getPages().forEach(page => {
-      page.setRotation(PDFLib.degrees(
-        (page.getRotation().angle + angle) % 360
-      ));
-    });
-
-    downloadBlob(
-      new Blob([await pdf.save()], { type: "application/pdf" }),
-      outputName(selectedFiles[0].name, "-rotated.pdf")
-    );
-  }
-
-  async function watermarkPDF() {
-    const pdf = await getPDF(selectedFiles[0]);
-    const text = ($("#watermarkText").value || "PDFS").trim();
-
-    if (!text) throw new Error("Enter watermark text.");
-
-    const font = await pdf.embedFont(PDFLib.StandardFonts.Helvetica);
-
-    pdf.getPages().forEach(page => {
-      const { width, height } = page.getSize();
-
-      page.drawText(text, {
-        x: width / 4,
-        y: height / 2,
-        size: 38,
-        font,
-        color: PDFLib.rgb(0.55, 0.48, 0.78),
-        opacity: 0.25,
-        rotate: PDFLib.degrees(35)
-      });
-    });
-
-    downloadBlob(
-      new Blob([await pdf.save()], { type: "application/pdf" }),
-      outputName(selectedFiles[0].name, "-watermarked.pdf")
-    );
-  }
-
-  async function imagesToPDF() {
-    const pdf = await PDFLib.PDFDocument.create();
-
-    for (const file of selectedFiles) {
-      const bytes = await file.arrayBuffer();
-      const image = file.type === "image/png"
-        ? await pdf.embedPng(bytes)
-        : await pdf.embedJpg(bytes);
-
-      const page = pdf.addPage([595.28, 841.89]);
-      const scale = Math.min(
-        555 / image.width,
-        801 / image.height
-      );
-
-      const width = image.width * scale;
-      const height = image.height * scale;
-
-      page.drawImage(image, {
-        x: (595.28 - width) / 2,
-        y: (841.89 - height) / 2,
-        width,
-        height
-      });
-    }
-
-    downloadBlob(
-      new Blob([await pdf.save()], { type: "application/pdf" }),
-      "images-to-pdf.pdf"
-    );
-  }
-
-  async function pdfToJPG() {
-    const file = selectedFiles[0];
-    const data = new Uint8Array(await file.arrayBuffer());
-    const pdf = await pdfjsLib.getDocument({ data }).promise;
-
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const viewport = page.getViewport({ scale: 1.5 });
-      const canvas = document.createElement("canvas");
-      const context = canvas.getContext("2d");
-
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
-
-      await page.render({ canvasContext: context, viewport }).promise;
-
-      const blob = await new Promise(resolve =>
-        canvas.toBlob(resolve, "image/jpeg", 0.92)
-      );
-
-      downloadBlob(blob, `page-${i}.jpg`);
-    }
-  }
-
-  async function extractPDFText() {
-    const data = new Uint8Array(await selectedFiles[0].arrayBuffer());
-    const pdf = await pdfjsLib.getDocument({ data }).promise;
-    let text = "";
-
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const content = await page.getTextContent();
-      text += content.items.map(item => item.str).join(" ") + "\n\n";
-    }
-
-    return text;
-  }
-
-  async function pdfToText() {
-    const text = await extractPDFText();
-
-    if (!text.trim()) {
-      throw new Error("No selectable text found. Scanned PDF OCR is not supported.");
-    }
-
-    downloadBlob(
-      new Blob([text], { type: "text/plain;charset=utf-8" }),
-      outputName(selectedFiles[0].name, ".txt")
-    );
-  }
-
-  async function pdfToExcel() {
-    const text = await extractPDFText();
-
-    if (!text.trim()) {
-      throw new Error("No selectable text found in this PDF.");
-    }
-
-    const rows = text.split("\n")
-      .filter(line => line.trim())
-      .map(line => [line.trim()]);
-
-    const sheet = XLSX.utils.aoa_to_sheet([["Extracted PDF Text"], ...rows]);
-    const book = XLSX.utils.book_new();
-
-    XLSX.utils.book_append_sheet(book, sheet, "PDF Text");
-    XLSX.writeFile(book, "pdf-text.xlsx");
-  }
-
-  async function wordToPDF() {
-    if (!window.mammoth || !window.jspdf) {
-      throw new Error("Conversion library could not load. Refresh and try again.");
-    }
-
-    const result = await mammoth.extractRawText({
-      arrayBuffer: await selectedFiles[0].arrayBuffer()
-    });
-
-    const doc = new jspdf.jsPDF();
-    const lines = doc.splitTextToSize(result.value || " ", 175);
-    let y = 18;
-
-    lines.forEach(line => {
-      if (y > 280) {
-        doc.addPage();
-        y = 18;
-      }
-      doc.text(line, 17, y);
-      y += 7;
-    });
-
-    doc.save("word-to-pdf.pdf");
-  }
-
-  processBtn.addEventListener("click", processTool);
-
-  // Reveal animation for page sections
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("in-view");
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.12 });
-
-  document.querySelectorAll(
-    ".tool-card, .step-card, .feature-copy, .about-copy, .about-card"
-  ).forEach(element => {
-    element.style.opacity = "0";
-    element.style.transform = "translateY(18px)";
-    element.style.transition = "opacity .6s ease, transform .6s ease";
-    observer.observe(element);
-  });
-
-  const revealStyle = document.createElement("style");
-  revealStyle.textContent =
-    ".in-view{opacity:1!important;transform:translateY(0)!important}";
-  document.head.appendChild(revealStyle);
+/* ==========================================
+   PDFS — MAIN JAVASCRIPT
+   Navigation, animations and PDF tools
+========================================== */
+
+const $ = (selector) => document.querySelector(selector);
+
+const menuToggle = $("#menuToggle");
+const navLinks = $("#navLinks");
+const modal = $("#toolModal");
+const modalTitle = $("#modalTitle");
+const modalDescription = $("#modalDescription");
+const fileInput = $("#fileInput");
+const fileName = $("#fileName");
+const processBtn = $("#processBtn");
+const modalStatus = $("#modalStatus");
+const toolOptions = $("#toolOptions");
+
+let activeTool = "";
+let selectedFiles = [];
+
+/* PDF.js configuration */
+
+if (window.pdfjsLib) {
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+}
+
+/* MOBILE NAVIGATION */
+
+menuToggle?.addEventListener("click", () => {
+  navLinks.classList.toggle("active");
 });
+
+navLinks?.querySelectorAll("a").forEach(link => {
+  link.addEventListener("click", () => {
+    navLinks.classList.remove("active");
+  });
+});
+
+/* SCROLL ANIMATIONS */
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add("visible");
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll(".reveal").forEach(element => {
+  observer.observe(element);
+});
+
+/* TOOL INFORMATION */
+
+const tools = {
+  merge: {
+    title: "Merge PDF",
+    description: "Combine multiple PDF documents into one file.",
+    accept: ".pdf",
+    multiple: true
+  },
+  split: {
+    title: "Split PDF",
+    description: "Extract individual pages or a selected page range.",
+    accept: ".pdf"
+  },
+  compress: {
+    title: "Compress PDF",
+    description: "Optimize your PDF by removing unnecessary document data.",
+    accept: ".pdf"
+  },
+  "pdf-word": {
+    title: "PDF to Word",
+    description: "Extract PDF text into an editable Word document.",
+    accept: ".pdf"
+  },
+  "word-pdf": {
+    title: "Word to PDF",
+    description: "Convert a DOCX document into a PDF using its extracted text.",
+    accept: ".docx"
+  },
+  "pdf-jpg": {
+    title: "PDF to JPG",
+    description: "Convert every PDF page into a JPG image.",
+    accept: ".pdf"
+  },
+  "jpg-pdf": {
+    title: "JPG to PDF",
+    description: "Combine images into one PDF document.",
+    accept: ".jpg,.jpeg,.png",
+    multiple: true
+  },
+  "pdf-excel": {
+    title: "PDF to Excel",
+    description: "Extract PDF text into an Excel spreadsheet.",
+    accept: ".pdf"
+  },
+  rotate: {
+    title: "Rotate PDF",
+    description: "Rotate all pages in your PDF.",
+    accept: ".pdf"
+  },
+  watermark: {
+    title: "Watermark PDF",
+    description: "Add a custom text watermark to every page.",
+    accept: ".pdf"
+  },
+  protect: {
+    title: "Protect PDF",
+    description: "PDF password encryption is not supported by this browser-only version yet.",
+    accept: ".pdf"
+  },
+  unlock: {
+    title: "Unlock PDF",
+    description: "Remove supported PDF restrictions. You must have permission to modify the document.",
+    accept: ".pdf"
+  }
+};
+
+/* OPEN TOOL */
+
+document.querySelectorAll("[data-tool]").forEach(button => {
+  button.addEventListener("click", () => openTool(button.dataset.tool));
+});
+
+function openTool(name) {
+  activeTool = name;
+  selectedFiles = [];
+
+  const config = tools[name];
+  if (!config) return;
+
+  modalTitle.textContent = config.title;
+  modalDescription.textContent = config.description;
+  fileInput.value = "";
+  fileInput.accept = config.accept;
+  fileInput.multiple = !!config.multiple;
+  fileName.textContent = "Supported files: " + config.accept;
+  modalStatus.textContent = "";
+  toolOptions.innerHTML = "";
+  processBtn.disabled = true;
+  processBtn.innerHTML = 'Continue <i class="fa-solid fa-arrow-right"></i>';
+
+  if (name === "split") {
+    toolOptions.innerHTML = `
+      <label>Page range (example: 1-3)
+        <input type="text" id="pageRange" placeholder="Leave blank for all pages">
+      </label>`;
+  }
+
+  if (name === "rotate") {
+    toolOptions.innerHTML = `
+      <label>Rotation
+        <select id="rotation">
+          <option value="90">90° clockwise</option>
+          <option value="180">180°</option>
+          <option value="270">270° clockwise</option>
+        </select>
+      </label>`;
+  }
+
+  if (name === "watermark") {
+    toolOptions.innerHTML = `
+      <label>Watermark text
+        <input type="text" id="watermarkText" placeholder="CONFIDENTIAL">
+      </label>`;
+  }
+
+  if (name === "protect") {
+    toolOptions.innerHTML = `
+      <p style="color:#b35b52;font-size:12px">
+        Password protection requires a dedicated PDF encryption library or server.
+        This tool is not active yet.
+      </p>`;
+  }
+
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+}
+
+/* CLOSE TOOL */
+
+function closeTool() {
+  modal.classList.remove("open");
+  modal.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "";
+}
+
+$("#modalClose")?.addEventListener("click", closeTool);
+$("#modalBackdrop")?.addEventListener("click", closeTool);
+
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") closeTool();
+});
+
+/* FILE SELECTION */
+
+fileInput.addEventListener("change", () => {
+  selectedFiles = Array.from(fileInput.files || []);
+
+  if (!selectedFiles.length) {
+    processBtn.disabled = true;
+    return;
+  }
+
+  fileName.textContent = selectedFiles.map(file => file.name).join(", ");
+  processBtn.disabled = false;
+  modalStatus.textContent = selectedFiles.length + " file(s) selected.";
+});
+
+/* DRAG AND DROP */
+
+const uploadZone = $(".upload-zone");
+
+uploadZone.addEventListener("dragover", event => {
+  event.preventDefault();
+  uploadZone.classList.add("dragover");
+});
+
+uploadZone.addEventListener("dragleave", () => {
+  uploadZone.classList.remove("dragover");
+});
+
+uploadZone.addEventListener("drop", event => {
+  event.preventDefault();
+  uploadZone.classList.remove("dragover");
+
+  const files = Array.from(event.dataTransfer.files);
+  const config = tools[activeTool];
+
+  selectedFiles = files.filter(file => {
+    const extension = "." + file.name.split(".").pop().toLowerCase();
+    return config.accept.split(",").includes(extension);
+  });
+
+  if (!selectedFiles.length) {
+    modalStatus.textContent = "Please select a supported file.";
+    return;
+  }
+
+  if (!config.multiple) selectedFiles = selectedFiles.slice(0, 1);
+
+  fileInput.value = "";
+  fileName.textContent = selectedFiles.map(f => f.name).join(", ");
+  processBtn.disabled = false;
+  modalStatus.textContent = selectedFiles.length + " file(s) selected.";
+});
+
+/* DOWNLOAD HELPER */
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  setTimeout(() => URL.revokeObjectURL(url), 3000);
+}
+
+/* FILE NAME HELPER */
+
+function outputName(file, suffix, extension = "pdf") {
+  return file.name.replace(/\.[^.]+$/, "") + suffix + "." + extension;
+}
+
+/* PDF READER */
+
+async function readPDF(file, options = {}) {
+  const bytes = await file.arrayBuffer();
+  return PDFLib.PDFDocument.load(bytes, options);
+}
+
+/* PDF TO TEXT */
+
+async function extractPDFText(file) {
+  const data = new Uint8Array(await file.arrayBuffer());
+  const pdf = await pdfjsLib.getDocument({ data }).promise;
+  const pages = [];
+
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+
+    pages.push(
+      content.items.map(item => item.str).join(" ")
+    );
+  }
+
+  return pages;
+}
+
+/* LOAD DOCX LIBRARY WHEN NEEDED */
+
+function loadDocxLibrary() {
+  return new Promise((resolve, reject) => {
+    if (window.docx) return resolve();
+
+    const script = document.createElement("script");
+    script.src = "https://unpkg.com/docx@8.5.0/build/index.umd.js";
+
+    script.onload = resolve;
+    script.onerror = () => reject(new Error("Could not load Word library."));
+
+    document.head.appendChild(script);
+  });
+}
+
+/* MAIN PROCESSOR */
+
+async function processTool() {
+  if (!selectedFiles.length) return;
+
+  if (!window.PDFLib || !window.pdfjsLib) {
+    throw new Error("PDF libraries could not load. Refresh and try again.");
+  }
+
+  const file = selectedFiles[0];
+
+  switch (activeTool) {
+
+    /* MERGE PDF */
+
+    case "merge": {
+      if (selectedFiles.length < 2) {
+        throw new Error("Select at least two PDF files.");
+      }
+
+      const merged = await PDFLib.PDFDocument.create();
+
+      for (const selected of selectedFiles) {
+        const source = await readPDF(selected);
+        const pages = await merged.copyPages(
+          source,
+          source.getPageIndices()
+        );
+
+        pages.forEach(page => merged.addPage(page));
+      }
+
+      const bytes = await merged.save();
+      downloadBlob(
+        new Blob([bytes], { type: "application/pdf" }),
+        "merged.pdf"
+      );
+      break;
+    }
+
+    /* SPLIT PDF */
+
+    case "split": {
+      const source = await readPDF(file);
+      const total = source.getPageCount();
+      const range = $("#pageRange").value.trim();
+
+      let indexes = [];
+
+      if (!range) {
+        indexes = source.getPageIndices();
+      } else {
+        const match = range.match(/^(\d+)\s*-\s*(\d+)$/);
+
+        if (!match) throw new Error("Enter a valid range, e.g. 1-3.");
+
+        const start = Number(match[1]);
+        const end = Number(match[2]);
+
+        if (start < 1 || end > total || start > end) {
+          throw new Error("Page range is outside the document.");
+        }
+
+        indexes = Array.from(
+          { length: end - start + 1 },
+          (_, i) => start - 1 + i
+        );
+      }
+
+      const output = await PDFLib.PDFDocument.create();
+      const pages = await output.copyPages(source, indexes);
+      pages.forEach(page => output.addPage(page));
+
+      const bytes = await output.save();
+      downloadBlob(
+        new Blob([bytes], { type: "application/pdf" }),
+        outputName(file, "-split")
+      );
+      break;
+    }
+
+    /* COMPRESS PDF */
+
+    case "compress": {
+      const source = await readPDF(file);
+      const bytes = await source.save({
+        useObjectStreams: true,
+        objectsPerTick: 50
+      });
+
+      downloadBlob(
+        new Blob([bytes], { type: "application/pdf" }),
+        outputName(file, "-optimized")
+      );
+
+      modalStatus.textContent =
+        "Basic PDF optimization complete. Image-heavy files may not shrink.";
+      break;
+    }
+
+    /* ROTATE PDF */
+
+    case "rotate": {
+      const source = await readPDF(file);
+      const angle = Number($("#rotation").value);
+
+      source.getPages().forEach(page => {
+        const current = page.getRotation().angle;
+        page.setRotation(PDFLib.degrees((current + angle) % 360));
+      });
+
+      const bytes = await source.save();
+
+      downloadBlob(
+        new Blob([bytes], { type: "application/pdf" }),
+        outputName(file, "-rotated")
+      );
+      break;
+    }
+
+    /* WATERMARK PDF */
+
+    case "watermark": {
+      const text = $("#watermarkText").value.trim();
+      if (!text) throw new Error("Enter your watermark text.");
+
+      const source = await readPDF(file);
+      const font = await source.embedFont(PDFLib.StandardFonts.HelveticaBold);
+
+      source.getPages().forEach(page => {
+        const { width, height } = page.getSize();
+
+        page.drawText(text, {
+          x: width * 0.15,
+          y: height * 0.5,
+          size: Math.min(width, height) * 0.065,
+          font,
+          color: PDFLib.rgb(0.55, 0.48, 0.85),
+          opacity: 0.25,
+          rotate: PDFLib.degrees(35)
+        });
+      });
+
+      const bytes = await source.save();
+
+      downloadBlob(
+        new Blob([bytes], { type: "application/pdf" }),
+        outputName(file, "-watermarked")
+      );
+      break;
+    }
+
+    /* PDF TO JPG */
+
+    case "pdf-jpg": {
+      const data = new Uint8Array(await file.arrayBuffer());
+      const pdf = await pdfjsLib.getDocument({ data }).promise;
+
+      for (let i = 1; i <= pdf.numPages; i++) {
+        modalStatus.textContent = `Converting page ${i} of ${pdf.numPages}...`;
+
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale: 1.8 });
+        const canvas = document.createElement("canvas");
+
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+
+        const context = canvas.getContext("2d");
+
+        await page.render({
+          canvasContext: context,
+          viewport
+        }).promise;
+
+        const blob = await new Promise(resolve =>
+          canvas.toBlob(resolve, "image/jpeg", 0.92)
+        );
+
+        downloadBlob(
+          blob,
+          file.name.replace(/\.pdf$/i, "") + "-page-" + i + ".jpg"
+        );
+      }
+
+      break;
+    }
+
+    /* JPG TO PDF */
+
+    case "jpg-pdf": {
+      const output = new jspdf.jsPDF();
+
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const image = selectedFiles[i];
+
+        if (i > 0) output.addPage();
+
+        const dataURL = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(image);
+        });
+
+        const dimensions = await new Promise(resolve => {
+          const img = new Image();
+          img.onload = () => resolve({
+            width: img.width,
+            height: img.height
+          });
+          img.src = dataURL;
+        });
+
+        const pageWidth = output.internal.pageSize.getWidth();
+        const pageHeight = output.internal.pageSize.getHeight();
+
+        const ratio = Math.min(
+          pageWidth / dimensions.width,
+          pageHeight / dimensions.height
+        );
+
+        const width = dimensions.width * ratio;
+        const height = dimensions.height * ratio;
+
+        output.addImage(
+          dataURL,
+          image.type === "image/png" ? "PNG" : "JPEG",
+          (pageWidth - width) / 2,
+          (pageHeight - height) / 2,
+          width,
+          height
+        );
+      }
+
+      output.save("images-to-pdf.pdf");
+      break;
+    }
+
+    /* PDF TO WORD */
+
+    case "pdf-word": {
+      const pages = await extractPDFText(file);
+      const text = pages.join("\n\n");
+
+      await loadDocxLibrary();
+
+      const { Document, Packer, Paragraph } = window.docx;
+
+      const documentFile = new Document({
+        sections: [{
+          children: text.split("\n").map(line =>
+            new Paragraph({ text: line })
+          )
+        }]
+      });
+
+      const blob = await Packer.toBlob(documentFile);
+
+      downloadBlob(
+        blob,
+        outputName(file, "-converted", "docx")
+      );
+
+      break;
+    }
+
+    /* WORD TO PDF */
+
+    case "word-pdf": {
+      const buffer = await file.arrayBuffer();
+      const result = await mammoth.extractRawText({ arrayBuffer: buffer });
+
+      const pdf = new jspdf.jsPDF();
+      const lines = pdf.splitTextToSize(
+        result.value,
+        175
+      );
+
+      let y = 20;
+
+      for (const line of lines) {
+        if (y > 275) {
+          pdf.addPage();
+          y = 20;
+        }
+
+        pdf.text(line, 18, y);
+        y += 7;
+      }
+
+      pdf.save(outputName(file, "-converted", "pdf"));
+      break;
+    }
+
+    /* PDF TO EXCEL */
+
+    case "pdf-excel": {
+      const pages = await extractPDFText(file);
+
+      const rows = [["Page", "Extracted Text"]];
+
+      pages.forEach((text, index) => {
+        rows.push([index + 1, text]);
+      });
+
+      const worksheet = XLSX.utils.aoa_to_sheet(rows);
+      const workbook = XLSX.utils.book_new();
+
+      XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        "PDF Data"
+      );
+
+      XLSX.writeFile(
+        workbook,
+        outputName(file, "-data", "xlsx")
+      );
+      break;
+    }
+
+    /* UNLOCK PDF */
+
+    case "unlock": {
+      const source = await readPDF(file, {
+        ignoreEncryption: true
+      });
+
+      const bytes = await source.save();
+
+      downloadBlob(
+        new Blob([bytes], { type: "application/pdf" }),
+        outputName(file, "-unlocked")
+      );
+      break;
+    }
+
+    /* PROTECT PDF */
+
+    case "protect": {
+      throw new Error(
+        "Password protection is not available in this browser-only version yet."
+      );
+    }
+
+    default:
+      throw new Error("This tool is not available.");
+  }
+}
+
+/* PROCESS BUTTON */
+
+processBtn.addEventListener("click", async () => {
+  processBtn.disabled = true;
+  processBtn.innerHTML =
+    '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
+
+  modalStatus.textContent = "Please wait while your file is processed.";
+
+  try {
+    await processTool();
+
+    if (activeTool !== "compress") {
+      modalStatus.textContent = "Your file is ready for download!";
+    }
+
+    processBtn.innerHTML =
+      '<i class="fa-solid fa-check"></i> Completed';
+
+  } catch (error) {
+    console.error(error);
+    modalStatus.textContent = error.message || "Something went wrong.";
+    processBtn.innerHTML = "Try Again";
+  }
+
+  processBtn.disabled = false;
+});
+
+/* FOOTER LINKS PLACEHOLDERS */
+
+document.querySelectorAll('a[href="#contact"], a[href="#privacy"], a[href="#terms"]').forEach(link => {
+  link.addEventListener("click", event => {
+    event.preventDefault();
+    alert("This page will be added in a future update.");
+  });
+});
+
+/* PAGE READY */
+
+console.log("PDFS website initialized successfully.");
