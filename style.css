@@ -3266,3 +3266,57 @@ footer.footer::before {
     padding: 16px;
   }
 }
+
+/* CTA FINAL LAYOUT FIX */
+.cta-section .cta-card {
+  display: grid !important;
+  grid-template-columns: 1fr 0.9fr !important;
+  align-items: center !important;
+  gap: 35px !important;
+  padding: 50px 5% !important;
+}
+
+.cta-section .cta-card > div:first-child {
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+  min-width: 0;
+}
+
+.cta-section .cta-card h2 {
+  font-size: clamp(32px, 4vw, 46px) !important;
+  line-height: 1.2 !important;
+  letter-spacing: -1.5px !important;
+  margin: 12px 0 !important;
+  text-align: left !important;
+}
+
+.cta-section .cta-card p {
+  margin-top: 12px !important;
+  text-align: left !important;
+}
+
+.cta-section .cta-card .cta-button {
+  grid-column: 1 !important;
+  grid-row: 2 !important;
+  justify-self: start !important;
+  width: fit-content;
+}
+
+.cta-section .cta-highlights {
+  grid-column: 2 !important;
+  grid-row: 1 / span 2 !important;
+}
+
+@media (max-width: 650px) {
+  .cta-section .cta-card {
+    grid-template-columns: 1fr !important;
+    padding: 30px 22px !important;
+  }
+
+  .cta-section .cta-card > div:first-child,
+  .cta-section .cta-card .cta-button,
+  .cta-section .cta-highlights {
+    grid-column: 1 !important;
+    grid-row: auto !important;
+  }
+}
