@@ -30,12 +30,16 @@ if (window.pdfjsLib) {
 /* MOBILE NAVIGATION */
 
 menuToggle?.addEventListener("click", () => {
-  navLinks.classList.toggle("active");
+  const isOpen = navLinks.classList.toggle("active");
+  menuToggle.setAttribute("aria-expanded", String(isOpen));
+  menuToggle.setAttribute("aria-label", isOpen ? "Close menu" : "Open menu");
 });
 
 navLinks?.querySelectorAll("a").forEach(link => {
   link.addEventListener("click", () => {
     navLinks.classList.remove("active");
+    menuToggle?.setAttribute("aria-expanded", "false");
+    menuToggle?.setAttribute("aria-label", "Open menu");
   });
 });
 
@@ -142,8 +146,8 @@ function openTool(name) {
   fileName.textContent = "Supported files: " + config.accept;
   modalStatus.textContent = "";
   toolOptions.innerHTML = "";
-  processBtn.disabled = true;
-  processBtn.innerHTML = 'Continue <i class="fa-solid fa-arrow-right"></i>';
+  processBtn.disabled = name === "protect";
+  processBtn.innerHTML = name === "protect" ? "Coming soon" : 'Continue <i class="fa-solid fa-arrow-right"></i>';
 
   if (name === "split") {
     toolOptions.innerHTML = `
@@ -172,10 +176,11 @@ function openTool(name) {
 
   if (name === "protect") {
     toolOptions.innerHTML = `
-      <p style="color:#b35b52;font-size:12px">
-        Password protection requires a dedicated PDF encryption library or server.
-        This tool is not active yet.
+      <p class="tool-notice" role="status">
+        Password protection is not available in this version. This option is shown for transparency and cannot process files yet.
       </p>`;
+    processBtn.disabled = true;
+    processBtn.textContent = "Coming soon";
   }
 
   modal.classList.add("open");
@@ -209,7 +214,7 @@ fileInput.addEventListener("change", () => {
   }
 
   fileName.textContent = selectedFiles.map(file => file.name).join(", ");
-  processBtn.disabled = false;
+  processBtn.disabled = activeTool === "protect";
   modalStatus.textContent = selectedFiles.length + " file(s) selected.";
 });
 
@@ -247,7 +252,7 @@ uploadZone.addEventListener("drop", event => {
 
   fileInput.value = "";
   fileName.textContent = selectedFiles.map(f => f.name).join(", ");
-  processBtn.disabled = false;
+  processBtn.disabled = activeTool === "protect";
   modalStatus.textContent = selectedFiles.length + " file(s) selected.";
 });
 
@@ -690,17 +695,11 @@ processBtn.addEventListener("click", async () => {
     processBtn.innerHTML = "Try Again";
   }
 
-  processBtn.disabled = false;
+  processBtn.disabled = activeTool === "protect";
 });
 
-/* FOOTER LINKS PLACEHOLDERS */
-
-document.querySelectorAll('a[href="#contact"], a[href="#privacy"], a[href="#terms"]').forEach(link => {
-  link.addEventListener("click", event => {
-    event.preventDefault();
-    alert("This page will be added in a future update.");
-  });
-});
+/* LEGAL LINKS
+   Privacy and Terms now point to real sections in index.html. */
 
 /* PAGE READY */
 
