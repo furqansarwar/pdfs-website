@@ -3204,3 +3204,65 @@ footer.footer::before {
   background: #7255e9 !important;
   color: #ffffff !important;
 }
+
+/* PDFS CTA HIGHLIGHTS */
+.cta-section .cta-card {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  column-gap: 45px;
+  row-gap: 20px;
+}
+
+.cta-highlights {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: grid;
+  gap: 14px;
+  width: 100%;
+}
+
+.cta-highlight-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 19px 22px;
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: 14px;
+  background: rgba(255,255,255,.10);
+  backdrop-filter: blur(12px);
+  transition: .3s ease;
+}
+
+.cta-highlight-item:hover {
+  background: rgba(255,255,255,.18);
+  transform: translateX(5px);
+}
+
+.cta-highlight-item .highlight-number {
+  color: #ffffff;
+  font-size: 23px;
+  font-weight: 800;
+}
+
+.cta-highlight-item .highlight-label {
+  color: #e3dcff;
+  font-size: 12px;
+  text-align: right;
+}
+
+@media (max-width: 650px) {
+  .cta-section .cta-card {
+    grid-template-columns: 1fr;
+  }
+
+  .cta-highlights {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .cta-highlight-item {
+    padding: 16px;
+  }
+}
