@@ -2242,3 +2242,27 @@ nav a:focus-visible,
     padding: 9px 11px;
   }
 }
+
+/* FINAL NAVBAR WHITE FIX */
+
+header.navbar {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  box-shadow: 0 3px 15px rgba(0,0,0,0.06) !important;
+  border-bottom: 1px solid #eeeeee !important;
+}
+
+header.navbar::before,
+header.navbar::after {
+  background: transparent !important;
+  background-image: none !important;
+}
+
+header.navbar .brand {
+  color: #252944 !important;
+}
+
+header.navbar .nav-links a {
+  color: #252944 !important;
+}
