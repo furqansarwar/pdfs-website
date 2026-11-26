@@ -705,3 +705,58 @@ document.querySelectorAll('a[href="#contact"], a[href="#privacy"], a[href="#term
 /* PAGE READY */
 
 console.log("PDFS website initialized successfully.");
+
+
+/* ===== PDFS STAR RATING SYSTEM ===== */
+
+(function () {
+  function initPDFSRatings() {
+    const ratingBox = document.getElementById("ratingStars");
+    const ratingAverage = document.getElementById("ratingAverage");
+    const ratingMessage = document.getElementById("ratingMessage");
+
+    if (!ratingBox || !ratingAverage || !ratingMessage) return;
+
+    const stars = ratingBox.querySelectorAll("button[data-rating]");
+    const savedRating = Number(localStorage.getItem("pdfs_user_rating")) || 0;
+
+    const summaryText = ratingBox.parentElement.querySelector(
+      ".rating-summary span"
+    );
+
+    function showRating(rating) {
+      stars.forEach(function (star) {
+        const value = Number(star.dataset.rating);
+        star.classList.toggle("active", value <= rating);
+      });
+    }
+
+    if (savedRating >= 1 && savedRating <= 5) {
+      showRating(savedRating);
+      ratingAverage.textContent = savedRating + "/5";
+      ratingMessage.textContent = "Your rating is saved. Thank you!";
+    }
+
+    if (summaryText) {
+      summaryText.textContent = "Your rating on this device";
+    }
+
+    stars.forEach(function (star) {
+      star.addEventListener("click", function () {
+        const rating = Number(star.dataset.rating);
+
+        localStorage.setItem("pdfs_user_rating", rating);
+
+        showRating(rating);
+        ratingAverage.textContent = rating + "/5";
+        ratingMessage.textContent = "Thank you! Your rating has been saved.";
+      });
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initPDFSRatings);
+  } else {
+    initPDFSRatings();
+  }
+})();
