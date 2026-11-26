@@ -1047,8 +1047,10 @@ button {
   padding: 20px;
 }
 
-.tool-modal.open { display: flex; }
-
+.tool-modal.active,
+.tool-modal.open {
+  display: flex;
+}
 .modal-backdrop {
   position: absolute;
   inset: 0;
