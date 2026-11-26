@@ -2164,6 +2164,84 @@ section {
     transition-duration: .01ms !important;
   }
 }
+/* ===== PREMIUM NAVBAR BUTTON ANIMATIONS ===== */
+
+nav a,
+.nav-links a,
+.navbar a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 15px;
+  border-radius: 12px;
+  text-decoration: none;
+  transition:
+    color .3s ease,
+    background .3s ease,
+    transform .3s ease,
+    box-shadow .3s ease;
+}
+
+/* Animated underline */
+nav a::after,
+.nav-links a::after,
+.navbar a::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 4px;
+  width: 0;
+  height: 2px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #7255e9, #b49cff);
+  transform: translateX(-50%);
+  transition: width .3s ease;
+}
+
+/* Hover button effect */
+nav a:hover,
+.nav-links a:hover,
+.navbar a:hover {
+  color: #7255e9;
+  background: rgba(114, 85, 233, .09);
+  transform: translateY(-3px);
+  box-shadow: 0 7px 20px rgba(114, 85, 233, .10);
+}
+
+nav a:hover::after,
+.nav-links a:hover::after,
+.navbar a:hover::after {
+  width: 55%;
+}
+
+/* Click animation */
+nav a:active,
+.nav-links a:active,
+.navbar a:active {
+  transform: scale(.94);
+}
+
+/* Keyboard accessibility */
+nav a:focus-visible,
+.nav-links a:focus-visible,
+.navbar a:focus-visible {
+  outline: 2px solid #7255e9;
+  outline-offset: 3px;
+}
+
+/* Mobile navigation */
+@media (max-width: 700px) {
+  nav a,
+  .nav-links a,
+  .navbar a {
+    padding: 9px 11px;
+  }
+}
+
+
+
+
 
 
 
