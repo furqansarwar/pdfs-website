@@ -898,9 +898,6 @@ button {
   padding-bottom: 95px;
 }
 
-.cta-section .cta-card:after {
-  display: none !important;
-  content: none !important;
 }
 }
 
@@ -3318,5 +3315,54 @@ footer.footer::before {
   .cta-section .cta-highlights {
     grid-column: 1 !important;
     grid-row: auto !important;
+  }
+}
+/* PDFS CTA FINAL LAYOUT */
+.cta-section .cta-card {
+  display: grid !important;
+  grid-template-columns: 1fr 0.85fr !important;
+  align-items: center !important;
+  gap: 25px 45px !important;
+  padding: 50px 5% !important;
+}
+
+.cta-section .cta-card > div:first-child {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.cta-section .cta-card h2 {
+  color: #ffffff !important;
+  font-size: clamp(32px, 4vw, 45px);
+  line-height: 1.2;
+}
+
+.cta-section .cta-card h2 span {
+  color: #c9b8ff !important;
+}
+
+.cta-section .cta-card .cta-button {
+  grid-column: 1;
+  grid-row: 2;
+  justify-self: start;
+}
+
+.cta-section .cta-highlights {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: grid;
+  gap: 14px;
+}
+
+@media (max-width: 650px) {
+  .cta-section .cta-card {
+    grid-template-columns: 1fr !important;
+  }
+
+  .cta-section .cta-card > div:first-child,
+  .cta-section .cta-card .cta-button,
+  .cta-section .cta-highlights {
+    grid-column: 1;
+    grid-row: auto;
   }
 }
