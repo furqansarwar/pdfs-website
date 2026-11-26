@@ -2164,3 +2164,229 @@ section {
     transition-duration: .01ms !important;
   }
 }
+
+
+/* ===== PREMIUM COMMUNITY SECTION ===== */
+
+.community-section {
+  position: relative;
+  padding: 100px 5%;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 10% 20%, rgba(114,85,233,.12), transparent 45%),
+    radial-gradient(ellipse at 90% 80%, rgba(88,59,208,.10), transparent 45%);
+}
+
+.community-section::before,
+.community-section::after {
+  content: "";
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  filter: blur(75px);
+  background: rgba(114,85,233,.15);
+  animation: communityGlow 8s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+.community-section::before {
+  top: 5%;
+  left: -100px;
+}
+
+.community-section::after {
+  right: -100px;
+  bottom: 5%;
+  animation-delay: 3s;
+}
+
+.community-section .section-heading {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.community-section .section-heading h2 {
+  font-size: clamp(30px, 4vw, 48px);
+  letter-spacing: -1.5px;
+}
+
+.community-section .section-heading h2 span {
+  color: #7255e9;
+}
+
+.community-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 26px;
+  max-width: 1000px;
+  margin: auto;
+}
+
+.rating-panel,
+.users-panel {
+  position: relative;
+  padding: 38px;
+  min-height: 290px;
+  border: 1px solid rgba(114,85,233,.18);
+  border-radius: 25px;
+  background: rgba(255,255,255,.82);
+  box-shadow: 0 18px 55px rgba(37,41,68,.07);
+  backdrop-filter: blur(15px);
+  transition: transform .35s ease, box-shadow .35s ease;
+}
+
+.rating-panel:hover,
+.users-panel:hover {
+  transform: translateY(-9px);
+  box-shadow: 0 25px 65px rgba(88,59,208,.15);
+}
+
+.rating-label {
+  display: inline-block;
+  color: #7255e9;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  margin-bottom: 18px;
+}
+
+.rating-panel h3,
+.users-panel h3 {
+  font-size: 25px;
+  color: #171b3b;
+  margin: 0 0 18px;
+}
+
+.rating-stars {
+  display: flex;
+  gap: 9px;
+  margin: 18px 0;
+}
+
+.rating-stars button {
+  border: 0;
+  background: transparent;
+  color: #c9c9d3;
+  font-size: 38px;
+  cursor: pointer;
+  padding: 0;
+  transition: color .2s ease, transform .2s ease;
+}
+
+.rating-stars button:hover {
+  color: #f5b82e;
+  transform: scale(1.2) rotate(-8deg);
+}
+
+.rating-stars button.active {
+  color: #f5b82e;
+}
+
+#ratingMessage {
+  color: #777d95;
+  font-size: 13px;
+  min-height: 20px;
+}
+
+.rating-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid #eceaf5;
+}
+
+.rating-summary strong {
+  color: #7255e9;
+  font-size: 28px;
+}
+
+.rating-summary span {
+  color: #777d95;
+  font-size: 12px;
+}
+
+.users-panel p {
+  color: #777d95;
+  line-height: 1.7;
+  font-size: 14px;
+}
+
+.user-avatars {
+  display: flex;
+  align-items: center;
+  margin: 27px 0 17px;
+}
+
+.user-avatars img {
+  width: 53px;
+  height: 53px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  background: #eee9ff;
+  margin-left: -10px;
+  transition: transform .3s ease;
+}
+
+.user-avatars img:first-child {
+  margin-left: 0;
+}
+
+.user-avatars img:hover {
+  transform: translateY(-8px) scale(1.1);
+  z-index: 2;
+}
+
+.community-caption {
+  display: block;
+  color: #252944;
+  font-size: 13px;
+}
+
+.community-stars {
+  color: #f5b82e;
+  letter-spacing: 4px;
+  margin-top: 10px;
+  font-size: 18px;
+}
+
+@keyframes communityGlow {
+  from { transform: translate(0, 0) scale(.9); }
+  to { transform: translate(35px, -25px) scale(1.2); }
+}
+
+@media (max-width: 700px) {
+  .community-section {
+    padding: 65px 18px;
+  }
+
+  .community-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rating-panel,
+  .users-panel {
+    padding: 27px;
+    min-height: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .community-section::before,
+  .community-section::after {
+    animation: none;
+  }
+
+  .rating-panel,
+  .users-panel,
+  .user-avatars img {
+    transition: none;
+  }
+}
