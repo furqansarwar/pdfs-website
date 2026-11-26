@@ -3094,22 +3094,58 @@ header.navbar .nav-links a {
   }
 }
 
-/* FOOTER - FULL WIDTH PLAIN BACKGROUND */
-footer.footer {
+
+/* PDFS CTA - CLEAN WHITE DESIGN */
+.cta-section {
+  background: #ffffff !important;
+  border-radius: 0 !important;
+  padding: 75px 20px !important;
+  margin: 0 !important;
   width: 100% !important;
   max-width: none !important;
-  margin: 0 !important;
-  border-radius: 0 !important;
-  background: #202020 !important;
-  box-shadow: none !important;
-  border: none !important;
-  outline: none !important;
 }
 
-footer.footer .footer-main,
-footer.footer .footer-bottom {
-  background: transparent !important;
+.cta-section .cta-card {
+  background: #ffffff !important;
+  border: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;
+  padding: 45px 5% !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+}
+
+.cta-section .cta-card h2 {
+  color: #171b3b !important;
+}
+
+.cta-section .cta-card h2 span {
+  color: #7655e9 !important;
+}
+
+.cta-section .cta-card p {
+  color: #777d95 !important;
+}
+
+.cta-section .cta-button {
+  background: #7655e9 !important;
+  color: #ffffff !important;
+  border-radius: 12px;
+  transition: .3s ease;
+}
+
+.cta-section .cta-button:hover {
+  background: #583bd0 !important;
+  transform: translateY(-4px);
+}
+
+@media (max-width: 650px) {
+  .cta-section .cta-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 30px 10px !important;
+  }
 }
 
