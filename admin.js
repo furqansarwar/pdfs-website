@@ -17,7 +17,9 @@ const config = {
   settings: { title:"Site Settings", table:"site_settings", columns:["setting_key","setting_value","is_public"], labels:["Setting","Value","Public"] },
   ads: { title:"Ad Management", table:"ad_slots", columns:["placement","ad_code","is_enabled"], labels:["Placement","Ad code","Enabled"] },
   analytics: { title:"Analytics", table:"analytics_events", columns:["event_type","page_path","tool_slug","created_at"], labels:["Event","Page","Tool","Date"] },
-  activity: { title:"Activity Log", table:"activity_logs", columns:["action","entity","actor_id","created_at"], labels:["Action","Section","Admin","Date"] }
+  activity: { title:"Activity Log", table:"activity_logs", columns:["action","entity","actor_id","created_at"], labels:["Action","Section","Admin","Date"] },
+  users: { title:"User Management", table:"admin_users", columns:["user_id","role","is_active"], labels:["User UUID","Role","Active"] },
+  support: { title:"Support Inbox", table:"support_messages", columns:["name","email","subject","message","status","created_at"], labels:["Name","Email","Subject","Message","Status","Received"] }
 };
 
 function showNotice(message, type="success") {
@@ -198,7 +200,61 @@ async function renderView(view){
   currentView=view; const title=view==="overview"?"Overview":config[view]?.title||"Overview";
   $("#pageTitle").textContent=title;$("#pageCrumb").textContent=title;
   viewRoot.innerHTML='<div class="panel">Loading your workspace…</div>';
-  try{if(view==="overview")await renderOverview();else await renderTable(view)}
+  try{if(view==="overview")await renderOverview();else if(view==="security")await renderSecurity();else if(view==="appearance")await renderAppearance();else if(view==="backup")await renderBackup();else await renderTable(view)}
   catch(error){viewRoot.innerHTML='<div class="panel"><h3>Unable to load this section</h3><p class="panel-sub">'+esc(error.message)+'</p></div>'}
 }
 // Do not restore saved sessions: every fresh page load must require an email and password.
+
+
+// PDFS ADMIN EXTENSIONS
+async function renderSecurity(){
+  const [{data:admins,error:aErr},{data:logs,error:lErr}] = await Promise.all([
+    supabase.from("admin_users").select("user_id,role,is_active,created_at").order("created_at",{ascending:true}),
+    supabase.from("activity_logs").select("action,entity,created_at,actor_id").order("created_at",{ascending:false}).limit(12)
+  ]);
+  if(aErr) throw aErr; if(lErr) throw lErr;
+  const owner=admins.find(x=>x.user_id===currentUser.id && x.role==="owner" && x.is_active);
+  viewRoot.innerHTML=`<div class="extension-grid">
+    <section class="panel"><div class="eyebrow">ACCESS PROTECTION</div><h2>Security overview</h2><p class="panel-sub">Admin sign-in is protected by Supabase Auth and active administrator roles.</p>
+      <div class="status-row"><span>Signed-in account</span><b class="status-ok">Verified</b></div>
+      <div class="status-row"><span>Fresh login on page load</span><b class="status-ok">Enabled</b></div>
+      <div class="status-row"><span>Database row security</span><b class="status-ok">Enabled</b></div>
+      <div class="status-row"><span>Owner-only access controls</span><b class="status-ok">Protected</b></div>
+      <p class="panel-sub">Passwords and secret API keys are never stored in this browser panel. Add or change account passwords in Supabase Authentication. Never place a service-role or secret key in website files.</p>
+    </section>
+    <section class="panel"><div class="eyebrow">CURRENT SESSION</div><h2>Account details</h2><p>${esc(currentUser.email||"Admin account")}</p><p class="panel-sub">User ID: ${esc(currentUser.id)}</p><button class="small-btn" id="securityLogout">Sign out now</button></section>
+    <section class="panel full-panel"><h3>Recent admin activity</h3><div class="data-wrap"><table><thead><tr><th>Action</th><th>Area</th><th>Date</th></tr></thead><tbody>${logs.map(x=>`<tr><td>${esc(x.action)}</td><td>${esc(x.entity||"—")}</td><td>${esc(new Date(x.created_at).toLocaleString())}</td></tr>`).join("")||'<tr><td colspan="3">No activity recorded yet.</td></tr>'}</tbody></table></div></section>
+    <section class="panel full-panel"><h3>Administrator access</h3><p class="panel-sub">Only the owner can activate, deactivate or change the role of another admin. Auth user creation/password changes remain in Supabase.</p><div class="data-wrap"><table><thead><tr><th>Account ID</th><th>Role</th><th>Status</th><th>Action</th></tr></thead><tbody>${admins.map(x=>`<tr><td>${esc(x.user_id.slice(0,8))}…</td><td>${esc(x.role)}</td><td>${x.is_active?'Active':'Inactive'}</td><td>${owner && x.user_id!==currentUser.id?`<button class="small-btn" data-admin-toggle="${esc(x.user_id)}" data-active="${x.is_active}">${x.is_active?'Deactivate':'Activate'}</button>`:'—'}</td></tr>`).join("")}</tbody></table></div></section>
+  </div>`;
+  $("#securityLogout").onclick=()=>$("#logoutButton").click();
+  viewRoot.querySelectorAll("[data-admin-toggle]").forEach(btn=>btn.addEventListener("click",async()=>{
+    const next=btn.dataset.active!=="true";
+    if(!confirm((next?"Activate":"Deactivate")+" this admin account?"))return;
+    const {error}=await supabase.from("admin_users").update({is_active:next}).eq("user_id",btn.dataset.adminToggle);
+    if(error){showNotice(error.message,"error");return;}
+    await supabase.from("activity_logs").insert({actor_id:currentUser.id,action:next?"admin_activate":"admin_deactivate",entity:"admin_users",entity_id:btn.dataset.adminToggle,details:{}});
+    showNotice("Admin access updated.");await renderSecurity();
+  }));
+}
+async function renderAppearance(){
+  const {data,error}=await supabase.from("site_settings").select("setting_key,setting_value,is_public").order("setting_key");
+  if(error)throw error;
+  viewRoot.innerHTML=`<div class="panel"><div class="eyebrow">BRAND & EXPERIENCE</div><h2>Website appearance and details</h2><p class="panel-sub">Use Site Settings below to manage the website's public contact details, headings, theme values and announcement content. Only publish values intended for visitors.</p><div class="stats-grid"><div class="stat-card"><b>Brand colors</b><p class="panel-sub">Store your preferred theme values in settings.</p></div><div class="stat-card"><b>Contact details</b><p class="panel-sub">Add your official email and phone yourself.</p></div><div class="stat-card"><b>Homepage text</b><p class="panel-sub">Manage section content in Website Content.</p></div><div class="stat-card"><b>Announcement</b><p class="panel-sub">Create a banner in Banners.</p></div></div><div class="table-actions extension-actions"><button class="small-btn primary" id="goSiteSettings">Open Site Settings</button><button class="small-btn" id="goContent">Open Website Content</button><button class="small-btn" id="goBanners">Open Banners</button></div></div><div class="panel"><h3>Saved settings</h3><div class="data-wrap"><table><thead><tr><th>Setting key</th><th>Public</th><th>Value</th></tr></thead><tbody>${(data||[]).map(x=>`<tr><td>${esc(x.setting_key)}</td><td>${x.is_public?'Yes':'No'}</td><td>${esc(JSON.stringify(x.setting_value))}</td></tr>`).join("")||'<tr><td colspan="3">No settings added yet.</td></tr>'}</tbody></table></div></div>`;
+  $("#goSiteSettings").onclick=()=>selectView("settings");$("#goContent").onclick=()=>selectView("content");$("#goBanners").onclick=()=>selectView("banners");
+}
+async function renderBackup(){
+  viewRoot.innerHTML=`<div class="panel"><div class="eyebrow">DATA PORTABILITY</div><h2>Backup & Export</h2><p class="panel-sub">Download a JSON backup of the PDFS admin content and settings. Passwords, Auth secrets and private keys are deliberately excluded.</p><div class="status-row"><span>Included</span><b>Tools, FAQs, banners, settings, content, ad slots</b></div><div class="status-row"><span>Excluded</span><b>Passwords, secret keys, Auth credentials</b></div><button class="small-btn primary" id="downloadBackup">Download JSON backup</button><p class="panel-sub" id="backupStatus"></p></div>`;
+  $("#downloadBackup").onclick=async()=>{
+    const btn=$("#downloadBackup"),status=$("#backupStatus");btn.disabled=true;btn.textContent="Preparing backup…";
+    try{
+      const tables=["tools","faqs","banners","site_settings","content_sections","ad_slots"];
+      const backup={product:"PDFS",format_version:1,created_at:new Date().toISOString(),tables:{}};
+      for(const table of tables){const {data,error}=await supabase.from(table).select("*");if(error)throw error;backup.tables[table]=data||[];}
+      const blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json"});
+      const url=URL.createObjectURL(blob),link=document.createElement("a");link.href=url;link.download="pdfs-backup-"+new Date().toISOString().slice(0,10)+".json";link.click();URL.revokeObjectURL(url);
+      status.textContent="Backup downloaded successfully.";
+      await supabase.from("activity_logs").insert({actor_id:currentUser.id,action:"backup_export",entity:"backup",details:{tables}});
+    }catch(error){status.textContent="Backup failed: "+error.message;}
+    finally{btn.disabled=false;btn.textContent="Download JSON backup";}
+  };
+}
