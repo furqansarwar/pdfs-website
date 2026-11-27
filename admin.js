@@ -129,7 +129,8 @@ function fieldMarkup(col,label,value) {
 }
 async function renderTable(view) {
   const c=config[view];
-  const orderColumn=(view==="settings"?"setting_key":(["analytics","activity","users","support"].includes(view)?"created_at":"updated_at"));\n  const {data,error}=await supabase.from(c.table).select("*").order(orderColumn,{ascending:false}).limit(200);
+  const orderColumn=(view==="settings"?"setting_key":(["analytics","activity","users","support"].includes(view)?"created_at":"updated_at"));
+  const {data,error}=await supabase.from(c.table).select("*").order(orderColumn,{ascending:false}).limit(200);
   if(error) throw error;
   const rows=data||[], readOnly=view==="analytics"||view==="activity"||view==="users"||view==="support";
   const head=c.labels.map(x=>'<th>'+esc(x)+'</th>').join("");
