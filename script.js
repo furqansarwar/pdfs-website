@@ -1036,3 +1036,10 @@ console.log("PDFS website initialized successfully.");
   loadSettings();
 
 })();
+
+/* OPEN A TOOL FROM ITS SEO GUIDE PAGE */
+const requestedTool = new URLSearchParams(window.location.search).get("tool");
+if (requestedTool && Object.prototype.hasOwnProperty.call(tools, requestedTool)) {
+  openTool(requestedTool);
+  document.querySelector("#tools")?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
