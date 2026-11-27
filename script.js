@@ -146,7 +146,7 @@ function openTool(name) {
   fileName.textContent = "Supported files: " + config.accept;
   modalStatus.textContent = "";
   toolOptions.innerHTML = "";
-  processBtn.disabled = name === "protect";
+  processBtn.disabled = true;
   processBtn.innerHTML = name === "protect" ? "Coming soon" : 'Continue <i class="fa-solid fa-arrow-right"></i>';
 
   if (name === "split") {
@@ -220,9 +220,24 @@ fileInput.addEventListener("change", () => {
 
   if (!selectedFiles.length) {
     processBtn.disabled = true;
+    fileName.textContent = "Supported files: " + tools[activeTool].accept;
+    modalStatus.textContent = "Please select a supported file.";
     return;
   }
 
+  const allowedTypes = tools[activeTool].accept.split(",");
+  const invalidFiles = selectedFiles.filter(file =>
+    !allowedTypes.includes("." + file.name.split(".").pop().toLowerCase())
+  );
+  if (invalidFiles.length) {
+    selectedFiles = [];
+    fileInput.value = "";
+    processBtn.disabled = true;
+    modalStatus.textContent = "One or more files have an unsupported file type.";
+    return;
+  }
+
+  if (!tools[activeTool].multiple) selectedFiles = selectedFiles.slice(0, 1);
   fileName.textContent = selectedFiles.map(file => file.name).join(", ");
   processBtn.disabled = activeTool === "protect";
   modalStatus.textContent = selectedFiles.length + " file(s) selected.";
@@ -332,7 +347,9 @@ function loadDocxLibrary() {
 /* MAIN PROCESSOR */
 
 async function processTool() {
-  if (!selectedFiles.length) return;
+  if (!selectedFiles.length) {
+    throw new Error("Please select a supported file before continuing.");
+  }
 
   if (!window.PDFLib || !window.pdfjsLib) {
     throw new Error("PDF libraries could not load. Refresh and try again.");
@@ -708,7 +725,7 @@ processBtn.addEventListener("click", async () => {
     processBtn.innerHTML = "Try Again";
   }
 
-  processBtn.disabled = activeTool === "protect";
+  processBtn.disabled = activeTool === "protect" || selectedFiles.length === 0;
 });
 
 /* LEGAL LINKS
