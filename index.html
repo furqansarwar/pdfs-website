@@ -84,6 +84,22 @@
     <div><span class="section-kicker">EVERYTHING YOU NEED</span><h2>Explore our <span>PDF tools</span></h2><p>Powerful document tools, organized in one easy-to-use place.</p></div>
     <span class="tool-count">11 AVAILABLE TOOLS · 1 COMING SOON</span>
   </div>
+  <div class="image-pdf-quick reveal" id="imageToPdfQuick">
+    <div class="image-pdf-copy">
+      <span class="section-kicker">POPULAR TOOL</span>
+      <h3><i class="fa-regular fa-images"></i> Image to PDF</h3>
+      <p>Turn JPG and PNG images into one PDF. Add multiple images and arrange them in the order you choose.</p>
+      <small id="quickImageStatus" role="status">JPG · JPEG · PNG</small>
+    </div>
+    <div class="image-pdf-drop" id="quickImageDrop" tabindex="0" role="button" aria-label="Choose or drop images to convert to PDF">
+      <i class="fa-solid fa-cloud-arrow-up"></i>
+      <strong>Drag &amp; drop your images here</strong>
+      <span>or click to browse from your device</span>
+      <input type="file" id="quickImageInput" accept=".jpg,.jpeg,.png,image/jpeg,image/png" multiple hidden>
+      <button type="button" class="primary-btn" id="quickImageChoose">Choose Images</button>
+      <button type="button" class="primary-btn" id="quickImageConvert" disabled>Convert to PDF <i class="fa-solid fa-arrow-right"></i></button>
+    </div>
+  </div>
   <div class="tools-grid">
     <button class="tool-card reveal" data-tool="merge"><span class="tool-icon purple"><i class="fa-solid fa-object-group"></i></span><strong>Merge PDF</strong><small>Combine multiple PDFs into one document.</small><span class="tool-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></span></button>
     <button class="tool-card reveal" data-tool="split"><span class="tool-icon blue"><i class="fa-solid fa-scissors"></i></span><strong>Split PDF</strong><small>Separate pages into individual files.</small><span class="tool-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></span></button>
@@ -91,7 +107,7 @@
     <button class="tool-card reveal" data-tool="pdf-word"><span class="tool-icon orange"><i class="fa-solid fa-file-word"></i></span><strong>PDF to Word</strong><small>Export PDF text to an editable Word file.</small><span class="tool-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></span></button>
     <button class="tool-card reveal" data-tool="word-pdf"><span class="tool-icon blue"><i class="fa-solid fa-file-pdf"></i></span><strong>Word to PDF</strong><small>Create a simple PDF from DOCX text.</small><span class="tool-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></span></button>
     <button class="tool-card reveal" data-tool="pdf-jpg"><span class="tool-icon pink"><i class="fa-solid fa-file-image"></i></span><strong>PDF to JPG</strong><small>Convert PDF pages into images.</small><span class="tool-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></span></button>
-    <button class="tool-card reveal" data-tool="jpg-pdf"><span class="tool-icon orange"><i class="fa-regular fa-images"></i></span><strong>JPG to PDF</strong><small>Create a PDF from your images.</small><span class="tool-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></span></button>
+    
     <button class="tool-card reveal" data-tool="pdf-excel"><span class="tool-icon green"><i class="fa-solid fa-file-excel"></i></span><strong>PDF to Excel</strong><small>Export extracted page text to an Excel sheet.</small><span class="tool-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></span></button>
     <button class="tool-card reveal" data-tool="rotate"><span class="tool-icon purple"><i class="fa-solid fa-rotate"></i></span><strong>Rotate PDF</strong><small>Rotate PDF pages to the right direction.</small><span class="tool-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></span></button>
     <button class="tool-card reveal" data-tool="watermark"><span class="tool-icon pink"><i class="fa-solid fa-stamp"></i></span><strong>Watermark PDF</strong><small>Add a custom watermark to your pages.</small><span class="tool-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></span></button>
