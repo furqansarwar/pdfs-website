@@ -210,11 +210,12 @@ async function renderVisitors(){
   for(const event of events){
     if(!event.session_id)continue;
     let s=sessions.get(event.session_id);
-    if(!s){s={id:event.session_id,first:event.created_at,last:event.created_at,events:0,pages:new Set(),country:event.country,code:event.country_code,region:event.region,city:event.city,timezone:event.timezone,browser:event.browser,device:event.device_type,landing:"—"};sessions.set(event.session_id,s);}
+    if(!s){s={id:event.session_id,first:event.created_at,last:event.created_at,events:0,pages:new Set(),tools:new Set(),country:event.country,code:event.country_code,region:event.region,city:event.city,timezone:event.timezone,browser:event.browser,device:event.device_type,landing:"—",referrer:"—"};sessions.set(event.session_id,s);}
     s.events++;
     if(new Date(event.created_at)<new Date(s.first))s.first=event.created_at;
     if(new Date(event.created_at)>new Date(s.last))s.last=event.created_at;
-    if(event.page_path){s.pages.add(event.page_path);if(event.event_type==="page_view")s.landing=event.page_path;}
+    if(event.page_path){s.pages.add(event.page_path);if(event.event_type==="page_view"){s.landing=event.page_path;s.referrer=event.referrer||s.referrer;}}
+    if(event.tool_slug)s.tools.add(event.tool_slug);
     if(!s.country&&event.country){s.country=event.country;s.code=event.country_code;s.region=event.region;s.city=event.city;s.timezone=event.timezone;}
     if(!s.browser&&event.browser)s.browser=event.browser;
     if(!s.device&&event.device_type)s.device=event.device_type;
@@ -225,7 +226,7 @@ async function renderVisitors(){
   const cityCount=new Set(visitors.map(v=>v.city).filter(Boolean)).size;
   const recent=visitors.slice(0,100),fmt=x=>x?new Date(x).toLocaleString():"—";
   viewRoot.innerHTML=`<div class="stats-grid">
-    <div class="stat-card"><div class="stat-top">Visitor sessions</div><div class="stat-number">${visitors.length.toLocaleString()}</div><div class="stat-note">Unique browser sessions in recorded events</div></div>
+    <div class="stat-card"><div class="stat-top">Visitor sessions</div><div class="stat-number">${visitors.length.toLocaleString()}</div><div class="stat-note">Browser sessions found in the latest 10,000 events</div></div>
     <div class="stat-card"><div class="stat-top">Countries</div><div class="stat-number">${Object.keys(countries).filter(x=>x!=="Unknown").length}</div><div class="stat-note">Countries detected by approximate IP lookup</div></div>
     <div class="stat-card"><div class="stat-top">Cities</div><div class="stat-number">${cityCount}</div><div class="stat-note">Cities with available location data</div></div>
     <div class="stat-card"><div class="stat-top">Tracked events</div><div class="stat-number">${events.length.toLocaleString()}</div><div class="stat-note">Page views and tool interactions</div></div>
@@ -234,8 +235,8 @@ async function renderVisitors(){
     <section class="panel"><h3>Visitors by country</h3><p class="panel-sub">Approximate country counts by browser session.</p><div class="data-wrap"><table><thead><tr><th>Country</th><th>Sessions</th></tr></thead><tbody>${top.map(([country,count])=>`<tr><td>${esc(country)}</td><td>${count}</td></tr>`).join("")||'<tr><td colspan="2">No location data yet.</td></tr>'}</tbody></table></div></section>
     <section class="panel"><h3>Location data notes</h3><p class="panel-sub">What these visitor records represent.</p><div class="status-row"><span>Location method</span><b>IP-based estimate</b></div><div class="status-row"><span>Raw visitor IP stored</span><b class="status-ok">No</b></div><div class="status-row"><span>City accuracy</span><b>Approximate</b></div><div class="status-row"><span>Missing / VPN locations</span><b>May show Unknown</b></div></section>
   </div>
-  <section class="panel" style="margin-top:16px"><h3>Recent visitor sessions</h3><p class="panel-sub">Up to 100 recent sessions. A session is a browser visit, not a verified real-world identity.</p><div class="data-wrap"><table><thead><tr><th>Country</th><th>City / Region</th><th>Device</th><th>Browser</th><th>Pages</th><th>Events</th><th>First seen</th><th>Last seen</th></tr></thead><tbody>${recent.map(v=>`<tr><td>${esc(v.country||"Unknown")}${v.code?" ("+esc(v.code)+")":""}</td><td>${esc([v.city,v.region].filter(Boolean).join(", ")||"—")}</td><td>${esc(v.device||"Unknown")}</td><td>${esc(v.browser||"Unknown")}</td><td>${v.pages.size}</td><td>${v.events}</td><td>${esc(fmt(v.first))}</td><td>${esc(fmt(v.last))}</td></tr>`).join("")||'<tr><td colspan="8">No visitor sessions recorded yet. Visit the public website to create a test record.</td></tr>'}</tbody></table></div></section>
-  <p class="hint" style="margin-top:12px">Location is estimated from the visitor’s public IP by a third-party lookup service. VPNs, mobile networks and privacy tools can make city results inaccurate or unavailable. Raw IP addresses are not saved in PDFS analytics.</p>`;
+  <section class="panel" style="margin-top:16px"><h3>Recent visitor sessions</h3><p class="panel-sub">Up to 100 recent sessions. A session is a browser visit, not a verified real-world identity.</p><div class="data-wrap"><table><thead><tr><th>Country</th><th>City / Region</th><th>Time zone</th><th>Device</th><th>Browser</th><th>Landing page</th><th>Pages</th><th>Tools used</th><th>Referrer</th><th>Events</th><th>First seen</th><th>Last seen</th></tr></thead><tbody>${recent.map(v=>`<tr><td>${esc(v.country||"Unknown")}${v.code?" ("+esc(v.code)+")":""}</td><td>${esc([v.city,v.region].filter(Boolean).join(", ")||"—")}</td><td>${esc(v.timezone||"—")}</td><td>${esc(v.device||"Unknown")}</td><td>${esc(v.browser||"Unknown")}</td><td>${esc(v.landing)}</td><td>${v.pages.size}</td><td>${esc(Array.from(v.tools).join(", ")||"—")}</td><td>${esc(v.referrer)}</td><td>${v.events}</td><td>${esc(fmt(v.first))}</td><td>${esc(fmt(v.last))}</td></tr>`).join("")||'<tr><td colspan="12">No visitor sessions recorded yet. Visit the public website to create a test record.</td></tr>'}</tbody></table></div></section>
+  <p class="hint" style="margin-top:12px">Location is estimated from the visitor’s public IP by a third-party lookup service. VPNs, mobile networks and privacy tools can make city results inaccurate or unavailable. Raw IP addresses are not saved in PDFS analytics. This is session-level analytics, not a real-world identity tracker.</p>`;
 }
 async function renderView(view){
   currentView=view; const title=view==="overview"?"Overview":config[view]?.title||"Overview";
