@@ -3062,3 +3062,81 @@ header.navbar .nav-links a {
 .contact-page-whatsapp { background:#20a65a;color:#fff; }
 .contact-page-call { background:#171b3b;color:#fff; }
 @media(max-width:600px) { .contact-page-number { padding:16px 13px; } .contact-page-number strong { font-size:21px; } .contact-page-actions { flex-direction:column; } .contact-page-actions a { width:100%; } }
+
+
+/* PREMIUM CONTACT PAGE REDESIGN */
+.contact-page { background:#f7f8fc; }
+.contact-main { width:min(1100px,calc(100% - 40px)); margin:0 auto; padding:34px 0 82px; }
+.contact-hero { position:relative; display:grid; grid-template-columns:1.08fr .92fr; align-items:center; gap:26px; min-height:390px; margin:18px 0 64px; padding:48px 54px; overflow:hidden; border:1px solid #e9e6f5; border-radius:28px; background:linear-gradient(115deg,#fff 0%,#f6f3ff 65%,#efebff 100%); box-shadow:0 22px 60px rgba(33,29,76,.07); }
+.contact-hero-copy { position:relative; z-index:2; }
+.contact-eyebrow { display:inline-flex; align-items:center; gap:9px; padding:9px 13px; border:1px solid #e6e0fa; border-radius:99px; background:#fff; color:#674fd0; font-size:10px; font-weight:800; letter-spacing:.12em; }
+.contact-hero h1 { margin:22px 0 15px; color:#171b3b; font:800 clamp(36px,5vw,55px)/1.08 "Plus Jakarta Sans",sans-serif; letter-spacing:-2.4px; }
+.contact-hero h1 span { color:#7255e9; }
+.contact-hero-copy>p { max-width:490px; margin:0; color:#697087; font-size:15px; line-height:1.85; }
+.contact-hero-points { display:flex; flex-wrap:wrap; gap:18px; margin-top:25px; }
+.contact-hero-points span { display:inline-flex; align-items:center; gap:7px; color:#555c75; font-size:11px; font-weight:700; }
+.contact-hero-points i { color:#25a66a; }
+.contact-hero-art { position:relative; min-height:290px; display:grid; place-items:center; }
+.contact-art-orbit { position:absolute; width:250px; height:250px; border:1px solid rgba(114,85,233,.16); border-radius:50%; }
+.orbit-two { width:205px;height:205px;border-style:dashed; }
+.contact-art-card { position:absolute; display:flex; flex-direction:column; align-items:flex-start; border:1px solid rgba(231,227,245,.95); border-radius:17px; background:rgba(255,255,255,.94); box-shadow:0 16px 40px rgba(55,44,120,.12); }
+.art-file { left:4%;top:27px;padding:18px 20px;transform:rotate(-8deg); }
+.art-file i { color:#7255e9;font-size:30px;margin-bottom:9px; }
+.art-file span { color:#252947;font-size:13px;font-weight:800;letter-spacing:.1em; }
+.art-file small { margin-top:3px;color:#9699aa;font-size:8px;font-weight:800;letter-spacing:.12em; }
+.art-chat { right:1%;bottom:30px;padding:17px 19px;transform:rotate(6deg); }
+.art-chat i { color:#20a65a;font-size:23px;margin-bottom:9px; }
+.art-chat span { color:#252947;font-size:12px;font-weight:800; }
+.art-chat small { margin-top:4px;color:#858ba0;font-size:10px; }
+.contact-art-bubble { position:relative;z-index:1;width:112px;height:112px;display:grid;place-items:center;border:9px solid rgba(255,255,255,.8);border-radius:34px;background:linear-gradient(145deg,#8067f1,#5e45d0);box-shadow:0 20px 42px rgba(96,72,205,.3);color:#fff;font-size:43px;transform:rotate(-5deg); }
+.contact-art-spark { position:absolute;color:#8069e8;font-size:30px; }
+.spark-one { top:20px;right:17%; }.spark-two { bottom:26px;left:20%;font-size:22px; }
+.contact-section-heading { margin-bottom:24px; }
+.contact-section-heading h2 { margin:10px 0 8px;color:#1b1f40;font:800 clamp(25px,3vw,34px)/1.2 "Plus Jakarta Sans",sans-serif;letter-spacing:-1px; }
+.contact-section-heading h2 span { color:#7255e9; }
+.contact-section-heading p { margin:0;color:#7a8094;font-size:14px;line-height:1.7; }
+.contact-methods { margin-bottom:65px; }
+.contact-method-grid { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px; }
+.contact-method-card { padding:27px;border:1px solid #e9eaf2;border-radius:20px;background:#fff;box-shadow:0 12px 34px rgba(31,35,76,.045);transition:transform .25s,box-shadow .25s; }
+.contact-method-card:hover { transform:translateY(-4px);box-shadow:0 18px 40px rgba(31,35,76,.09); }
+.contact-method-top { display:flex;align-items:center;justify-content:space-between;gap:10px; }
+.contact-method-icon { width:50px;height:50px;display:grid;place-items:center;border-radius:15px;font-size:25px; }
+.whatsapp-method .contact-method-icon { background:#e9f8ef;color:#20a65a; }
+.phone-method .contact-method-icon { background:#efedff;color:#7057df; }
+.contact-method-label { color:#999caf;font-size:9px;font-weight:800;letter-spacing:.14em; }
+.contact-method-card h3 { margin:20px 0 7px;color:#242844;font:750 20px "Plus Jakarta Sans",sans-serif; }
+.contact-method-card p { min-height:48px;margin:0;color:#777e92;font-size:13px;line-height:1.75; }
+.contact-method-number { display:block;margin:17px 0;color:#202441;font-size:24px;letter-spacing:.02em; }
+.contact-method-button { display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;padding:0 16px;border-radius:11px;color:#fff;text-decoration:none;font-size:12px;font-weight:800;transition:filter .2s,transform .2s; }
+.contact-method-button:hover { filter:brightness(.96);transform:translateY(-2px); }
+.whatsapp-button { background:#20a65a; }.phone-button { background:#171b3b; }
+.contact-help-section { margin-bottom:40px; }
+.contact-help-grid { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px; }
+.contact-help-card { padding:22px;border:1px solid #e9eaf2;border-radius:17px;background:#fff; }
+.contact-help-card>span { width:43px;height:43px;display:grid;place-items:center;border-radius:13px;background:#f0edff;color:#7057df;font-size:18px; }
+.contact-help-card h3 { margin:16px 0 7px;color:#252946;font:750 15px "Plus Jakarta Sans",sans-serif; }
+.contact-help-card p { margin:0;color:#7a8093;font-size:12px;line-height:1.75; }
+.contact-note { display:flex;align-items:flex-start;gap:15px;margin:42px 0 30px;padding:21px 23px;border:1px solid #e6e2f4;border-radius:16px;background:#f0edff; }
+.contact-note-icon { width:42px;height:42px;display:grid;place-items:center;flex:none;border-radius:12px;background:#fff;color:#7057df;font-size:17px; }
+.contact-note h3 { margin:1px 0 5px;color:#272b4b;font-size:14px;font-weight:800; }
+.contact-note p { margin:0;color:#697087;font-size:12px;line-height:1.7; }
+.contact-bottom-links { display:flex;flex-wrap:wrap;justify-content:space-between;gap:15px;padding:20px 2px;border-top:1px solid #e8e9f0; }
+.contact-bottom-links a { color:#6550c8;font-size:12px;font-weight:750;text-decoration:none; }
+.contact-bottom-links a:hover { text-decoration:underline; }
+@media(max-width:760px) {
+ .contact-main { width:calc(100% - 28px);padding:25px 0 55px; }
+ .contact-hero { grid-template-columns:1fr;gap:5px;margin:14px 0 48px;padding:30px 24px 15px;border-radius:22px; }
+ .contact-hero h1 { font-size:39px;letter-spacing:-1.7px; }
+ .contact-hero-copy>p { font-size:13px; }
+ .contact-hero-art { min-height:240px; }
+ .contact-art-orbit { width:205px;height:205px; }.orbit-two {width:165px;height:165px;}
+ .art-file {left:8%;top:17px;}.art-chat {right:5%;bottom:20px;}
+ .contact-art-bubble {width:94px;height:94px;border-radius:29px;font-size:36px;}
+ .contact-methods {margin-bottom:48px;}
+ .contact-method-grid {grid-template-columns:1fr;gap:14px;}
+ .contact-method-card {padding:22px;}
+ .contact-method-card p {min-height:0;}
+ .contact-help-grid {grid-template-columns:1fr;gap:12px;}
+ .contact-help-card {padding:19px;}
+ .contact-bottom-links {flex-direction:column;}
+}
