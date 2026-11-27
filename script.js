@@ -387,6 +387,10 @@ async function processTool() {
     throw new Error("Please select a supported file before continuing.");
   }
 
+  // Keep the first selected file available to every single-file tool,
+  // including Protect PDF, before any tool-specific processing begins.
+  const file = selectedFiles[0];
+
   if (activeTool === "protect") {
     const password = $("#protectPassword")?.value || "";
     const confirmation = $("#confirmProtectPassword")?.value || "";
@@ -425,8 +429,6 @@ async function processTool() {
   if (activeTool === "pdf-excel" && !window.XLSX) {
     throw new Error("The Excel export library could not load. Check your connection and refresh the page.");
   }
-
-  const file = selectedFiles[0];
 
   switch (activeTool) {
 
