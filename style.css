@@ -2848,42 +2848,52 @@ header.navbar .nav-links a {
 
 /* FEATURED IMAGE TO PDF QUICK CONVERTER */
 .image-pdf-quick {
-  display: grid; grid-template-columns: minmax(230px,.78fr) minmax(0,1.22fr); gap: 34px; align-items: stretch;
-  margin: 26px 0 34px; padding: 30px; border: 1px solid #e9e6f5; border-radius: 20px;
-  background: #fff; box-shadow: 0 12px 38px rgba(30,25,70,.055);
+  display:grid;grid-template-columns:minmax(260px,.86fr) minmax(0,1.14fr);gap:42px;align-items:center;
+  margin:28px 0 36px;padding:38px;border:1px solid #e9e7f1;border-radius:22px;
+  background:#fff;box-shadow:0 14px 42px rgba(30,25,70,.065);
 }
-.image-pdf-copy { display:flex; flex-direction:column; align-items:flex-start; justify-content:center; }
-.image-pdf-copy h3 { display:flex; align-items:center; gap:11px; margin:12px 0; color:var(--navy); font-size:clamp(23px,3vw,30px); }
-.image-pdf-copy h3 i { color:var(--purple); }
-.image-pdf-copy p { max-width:390px; color:var(--muted); line-height:1.75; margin:0 0 15px; }
-.image-pdf-formats { display:flex; flex-wrap:wrap; gap:8px; margin:3px 0 16px; }
-.image-pdf-formats span { padding:6px 11px; border-radius:7px; background:#f3f0ff; color:#5c45c4; font-size:11px; font-weight:700; letter-spacing:.06em; }
-.image-pdf-copy .image-pdf-private { margin:0; font-size:12px; color:#777d95; }
-.image-pdf-private i { color:#21a179; margin-right:5px; }
-.image-pdf-workspace { min-width:0; }
-.image-pdf-drop { min-height:220px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:26px; text-align:center; border:1.5px dashed #c9c0f2; border-radius:15px; background:#faf9ff; transition:border-color .2s,background .2s; }
-.image-pdf-drop:hover,.image-pdf-drop.dragover { border-color:var(--purple); background:#f4f1ff; }
-.image-pdf-upload-icon { width:52px;height:52px;display:grid;place-items:center;border-radius:15px;background:#eeeaff;color:var(--purple);font-size:22px;margin-bottom:3px; }
-.image-pdf-drop strong { color:var(--navy);font-size:15px; }
-.image-pdf-drop > span:not(.image-pdf-upload-icon) { color:var(--muted);font-size:12px; }
-.image-pdf-drop .primary-btn { margin-top:7px; }
-.quick-image-selected { margin-top:16px; }
-.quick-image-list-heading { display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px;color:var(--navy);font-size:13px; }
-.quick-image-list-heading span { color:var(--muted);font-size:11px;font-weight:400;text-align:right; }
-.quick-image-list { display:grid;gap:8px;max-height:220px;overflow:auto;padding-right:3px; }
-.quick-image-item { display:flex;align-items:center;gap:10px;min-width:0;padding:8px 10px;border:1px solid #eeedf4;border-radius:10px;background:#fff; }
-.quick-image-item img { width:42px;height:42px;object-fit:cover;border-radius:7px;background:#f2f2f6;flex:none; }
-.quick-image-item strong { flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#34364d;font-size:12px;font-weight:600; }
-.quick-image-item .quick-image-order { color:#9293a5;font-size:11px;flex:none; }
-.quick-image-item button { width:28px;height:28px;display:grid;place-items:center;border:1px solid #e9e7f0;border-radius:7px;background:#fff;color:#55516d;cursor:pointer;flex:none; }
-.quick-image-item button:hover { background:#f2efff;border-color:#d8d0fb;color:var(--purple); }
-.quick-image-item button:disabled { opacity:.35;cursor:not-allowed; }
-.quick-image-item button.remove-image:hover { color:#d34b5b;background:#fff2f3;border-color:#f5d5d9; }
-.quick-image-actions { display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:16px; }
-.quick-image-hint { color:var(--muted);font-size:11px; }
-#quickImageConvert:disabled { opacity:.45;cursor:not-allowed; }
-@media(max-width:760px) { .image-pdf-quick { grid-template-columns:1fr;gap:22px;padding:21px;margin:20px 0 28px; } .image-pdf-drop { min-height:195px;padding:20px 14px; } .quick-image-actions { align-items:stretch;flex-direction:column; } .quick-image-actions .primary-btn { width:100%; } .quick-image-hint { text-align:center; } }
-
+.image-pdf-copy {display:flex;flex-direction:column;align-items:flex-start;justify-content:center;min-width:0}
+.image-pdf-eyebrow {display:inline-flex;align-items:center;gap:8px;padding:7px 11px;border-radius:999px;background:#f3f0ff;color:#654bd0;font-size:10px;font-weight:800;letter-spacing:.11em}
+.image-pdf-copy h3 {margin:18px 0 12px;color:var(--navy);font-size:clamp(29px,3.4vw,39px);line-height:1.12;letter-spacing:-.04em}
+.image-pdf-copy h3 span {color:var(--purple)}
+.image-pdf-copy .image-pdf-description {max-width:410px;margin:0;color:#697087;font-size:14px;line-height:1.8}
+.image-pdf-formats {display:flex;flex-wrap:wrap;gap:9px;margin:21px 0 23px}
+.image-pdf-formats span {min-width:48px;padding:7px 12px;border:1px solid #e8e4f7;border-radius:8px;background:#faf9ff;color:#6250b5;text-align:center;font-size:10px;font-weight:800;letter-spacing:.08em}
+.image-pdf-private {display:flex;align-items:flex-start;gap:11px;max-width:390px;margin:0;padding:13px 15px;border:1px solid #e7f1ec;border-radius:12px;background:#f8fcf9;color:#27936d}
+.image-pdf-private>i {margin-top:2px;font-size:16px}
+.image-pdf-private span {display:flex;flex-direction:column;gap:3px}
+.image-pdf-private strong {color:#315d4d;font-size:11px}
+.image-pdf-private small {color:#71847b;font-size:10px;line-height:1.5}
+.image-pdf-workspace {min-width:0}
+.image-pdf-drop {min-height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:11px;padding:30px 22px;text-align:center;border:1.5px dashed #cfc7ef;border-radius:17px;background:linear-gradient(145deg,#fbfaff,#f7f5ff);transition:border-color .2s,background .2s,transform .2s}
+.image-pdf-drop:hover,.image-pdf-drop.dragover {border-color:var(--purple);background:#f3f0ff}
+.image-pdf-upload-icon {width:60px;height:60px;display:grid;place-items:center;border-radius:18px;background:#eeeaff;color:var(--purple);font-size:24px;margin-bottom:5px}
+.image-pdf-drop strong {color:var(--navy);font-size:16px;font-weight:750}
+.image-pdf-drop>span:not(.image-pdf-upload-icon) {color:#85899c;font-size:12px}
+.image-pdf-drop .primary-btn {margin-top:9px;min-width:150px}
+.quick-image-selected {margin-top:17px}
+.quick-image-list-heading {display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:11px;color:var(--navy);font-size:13px}
+.quick-image-list-heading span {color:var(--muted);font-size:11px;font-weight:400;text-align:right}
+.quick-image-list {display:grid;gap:8px;max-height:220px;overflow:auto;padding-right:3px}
+.quick-image-item {display:flex;align-items:center;gap:10px;min-width:0;padding:8px 10px;border:1px solid #eeedf4;border-radius:10px;background:#fff}
+.quick-image-item img {width:42px;height:42px;object-fit:cover;border-radius:7px;background:#f2f2f6;flex:none}
+.quick-image-item strong {flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#34364d;font-size:12px;font-weight:600}
+.quick-image-item .quick-image-order {color:#9293a5;font-size:11px;flex:none}
+.quick-image-item button {width:28px;height:28px;display:grid;place-items:center;border:1px solid #e9e7f0;border-radius:7px;background:#fff;color:#55516d;cursor:pointer;flex:none}
+.quick-image-item button:hover {background:#f2efff;border-color:#d8d0fb;color:var(--purple)}
+.quick-image-item button:disabled {opacity:.35;cursor:not-allowed}
+.quick-image-item button.remove-image:hover {color:#d34b5b;background:#fff2f3;border-color:#f5d5d9}
+.quick-image-actions {display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:17px}
+.quick-image-hint {display:flex;align-items:center;gap:7px;color:#85899c;font-size:11px}
+#quickImageConvert:disabled {opacity:.45;cursor:not-allowed}
+@media(max-width:760px) {
+  .image-pdf-quick {grid-template-columns:1fr;gap:25px;padding:23px 20px;margin:21px 0 29px}
+  .image-pdf-copy h3 {font-size:31px}
+  .image-pdf-drop {min-height:215px;padding:23px 14px}
+  .quick-image-actions {align-items:stretch;flex-direction:column}
+  .quick-image-actions .primary-btn {width:100%}
+  .quick-image-hint {justify-content:center;text-align:center}
+}
 .image-pdf-drop[hidden], .quick-image-selected[hidden] { display:none !important; }
 .quick-image-list-heading { flex-wrap:wrap; }
 .quick-image-add { border:0;background:transparent;color:var(--purple);font-size:11px;font-weight:700;cursor:pointer;padding:5px 0; }
