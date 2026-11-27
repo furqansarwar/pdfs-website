@@ -128,9 +128,9 @@ function fieldMarkup(col,label,value) {
 }
 async function renderTable(view) {
   const c=config[view];
-  const {data,error}=await supabase.from(c.table).select("*").order(view==="settings"?"setting_key":(view==="analytics"||view==="activity"?"created_at":"updated_at"),{ascending:false}).limit(200);
+  const orderColumn=(view==="settings"?"setting_key":(["analytics","activity","users","support"].includes(view)?"created_at":"updated_at"));\n  const {data,error}=await supabase.from(c.table).select("*").order(orderColumn,{ascending:false}).limit(200);
   if(error) throw error;
-  const rows=data||[], readOnly=view==="analytics"||view==="activity";
+  const rows=data||[], readOnly=view==="analytics"||view==="activity"||view==="users"||view==="support";
   const head=c.labels.map(x=>'<th>'+esc(x)+'</th>').join("");
   const body=rows.map(row=>{
     const key=row.id??row.setting_key;
@@ -188,7 +188,7 @@ async function deleteRecord(view,key){
   showNotice("Record deleted.");await renderView(view);
 }
 async function selectView(view){
-  if(view!=="overview" && !config[view]) return;
+  if(view!=="overview" && !config[view] && !["security","appearance","backup"].includes(view)) return;
   document.querySelectorAll(".nav-item").forEach(x=>{
     const active=x.dataset.view===view;
     x.classList.toggle("active",active);
