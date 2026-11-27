@@ -2987,3 +2987,44 @@ header.navbar .nav-links a {
   #imageToPdfQuick .quick-image-actions {align-items:stretch !important;flex-direction:column !important}
   #imageToPdfQuick .quick-image-actions .primary-btn {width:100% !important}
 }
+
+
+/* PREMIUM SCROLL ANIMATION SYSTEM */
+.reveal {
+  opacity:0;
+  transform:translate3d(0,32px,0) scale(.985);
+  filter:blur(3px);
+  transition:
+    opacity .75s cubic-bezier(.2,.65,.25,1),
+    transform .8s cubic-bezier(.2,.75,.2,1),
+    filter .75s ease;
+  transition-delay:var(--reveal-delay,0ms);
+  will-change:opacity,transform;
+}
+.reveal.visible {
+  opacity:1;
+  transform:translate3d(0,0,0) scale(1);
+  filter:blur(0);
+}
+.tool-card.reveal,
+.step-card.reveal,
+.feature-card.reveal {
+  transform:translate3d(0,25px,0) scale(.975);
+}
+.tool-card.reveal.visible,
+.step-card.reveal.visible,
+.feature-card.reveal.visible {
+  transform:translate3d(0,0,0) scale(1);
+}
+@media (prefers-reduced-motion:reduce) {
+  .reveal,.reveal.visible,
+  .tool-card.reveal,.tool-card.reveal.visible,
+  .step-card.reveal,.step-card.reveal.visible,
+  .feature-card.reveal,.feature-card.reveal.visible {
+    opacity:1 !important;
+    transform:none !important;
+    filter:none !important;
+    transition:none !important;
+    animation:none !important;
+  }
+}
