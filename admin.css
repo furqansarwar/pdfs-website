@@ -8,3 +8,6 @@
 
 /* Visitor location dashboard */
 .visitor-map-note{color:#9297a9;font-size:10px;line-height:1.7}
+
+/* Cloudflare Turnstile on the admin login form */
+.turnstile-wrap{margin-top:18px;min-height:78px}.turnstile-wrap iframe{max-width:100%}.captcha-message{margin-top:6px;color:#9297a9;font-size:10px}.captcha-message.verified{color:#14966f}
