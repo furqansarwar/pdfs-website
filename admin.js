@@ -17,6 +17,7 @@ const config = {
   settings: { title:"Site Settings", table:"site_settings", columns:["setting_key","setting_value","is_public"], labels:["Setting","Value","Public"] },
   ads: { title:"Ad Management", table:"ad_slots", columns:["placement","ad_code","is_enabled"], labels:["Placement","Ad code","Enabled"] },
   analytics: { title:"Analytics", table:"analytics_events", columns:["event_type","page_path","tool_slug","created_at"], labels:["Event","Page","Tool","Date"] },
+  visitors: { title:"Visitors", table:"analytics_events", columns:["session_id","country","city","device_type","browser","created_at"], labels:["Session","Country","City","Device","Browser","Last seen"] },
   activity: { title:"Activity Log", table:"activity_logs", columns:["action","entity","actor_id","created_at"], labels:["Action","Section","Admin","Date"] },
   users: { title:"User Management", table:"admin_users", columns:["user_id","role","is_active"], labels:["User UUID","Role","Active"] },
   support: { title:"Support Inbox", table:"support_messages", columns:["name","email","subject","message","status","created_at"], labels:["Name","Email","Subject","Message","Status","Received"] }
@@ -194,7 +195,7 @@ async function deleteRecord(view,key){
   showNotice("Record deleted.");await renderView(view);
 }
 async function selectView(view){
-  if(view!=="overview" && !config[view] && !["security","appearance","backup"].includes(view)) return;
+  if(view!=="overview" && !config[view] && !["security","appearance","backup","visitors"].includes(view)) return;
   document.querySelectorAll(".nav-item").forEach(x=>{
     const active=x.dataset.view===view;
     x.classList.toggle("active",active);
@@ -202,11 +203,45 @@ async function selectView(view){
   });
   await renderView(view);
 }
+async function renderVisitors(){
+  const {data,error}=await supabase.from("analytics_events").select("session_id,event_type,page_path,tool_slug,created_at,country,country_code,region,city,timezone,browser,device_type,referrer").order("created_at",{ascending:false}).limit(10000);
+  if(error)throw error;
+  const events=data||[], sessions=new Map();
+  for(const event of events){
+    if(!event.session_id)continue;
+    let s=sessions.get(event.session_id);
+    if(!s){s={id:event.session_id,first:event.created_at,last:event.created_at,events:0,pages:new Set(),country:event.country,code:event.country_code,region:event.region,city:event.city,timezone:event.timezone,browser:event.browser,device:event.device_type,landing:"—"};sessions.set(event.session_id,s);}
+    s.events++;
+    if(new Date(event.created_at)<new Date(s.first))s.first=event.created_at;
+    if(new Date(event.created_at)>new Date(s.last))s.last=event.created_at;
+    if(event.page_path){s.pages.add(event.page_path);if(event.event_type==="page_view")s.landing=event.page_path;}
+    if(!s.country&&event.country){s.country=event.country;s.code=event.country_code;s.region=event.region;s.city=event.city;s.timezone=event.timezone;}
+    if(!s.browser&&event.browser)s.browser=event.browser;
+    if(!s.device&&event.device_type)s.device=event.device_type;
+  }
+  const visitors=Array.from(sessions.values()).sort((a,b)=>new Date(b.last)-new Date(a.last));
+  const countries={};visitors.forEach(v=>{const k=v.country||"Unknown";countries[k]=(countries[k]||0)+1;});
+  const top=Object.entries(countries).sort((a,b)=>b[1]-a[1]).slice(0,12);
+  const cityCount=new Set(visitors.map(v=>v.city).filter(Boolean)).size;
+  const recent=visitors.slice(0,100),fmt=x=>x?new Date(x).toLocaleString():"—";
+  viewRoot.innerHTML=`<div class="stats-grid">
+    <div class="stat-card"><div class="stat-top">Visitor sessions</div><div class="stat-number">${visitors.length.toLocaleString()}</div><div class="stat-note">Unique browser sessions in recorded events</div></div>
+    <div class="stat-card"><div class="stat-top">Countries</div><div class="stat-number">${Object.keys(countries).filter(x=>x!=="Unknown").length}</div><div class="stat-note">Countries detected by approximate IP lookup</div></div>
+    <div class="stat-card"><div class="stat-top">Cities</div><div class="stat-number">${cityCount}</div><div class="stat-note">Cities with available location data</div></div>
+    <div class="stat-card"><div class="stat-top">Tracked events</div><div class="stat-number">${events.length.toLocaleString()}</div><div class="stat-note">Page views and tool interactions</div></div>
+  </div>
+  <div class="dashboard-grid">
+    <section class="panel"><h3>Visitors by country</h3><p class="panel-sub">Approximate country counts by browser session.</p><div class="data-wrap"><table><thead><tr><th>Country</th><th>Sessions</th></tr></thead><tbody>${top.map(([country,count])=>`<tr><td>${esc(country)}</td><td>${count}</td></tr>`).join("")||'<tr><td colspan="2">No location data yet.</td></tr>'}</tbody></table></div></section>
+    <section class="panel"><h3>Location data notes</h3><p class="panel-sub">What these visitor records represent.</p><div class="status-row"><span>Location method</span><b>IP-based estimate</b></div><div class="status-row"><span>Raw visitor IP stored</span><b class="status-ok">No</b></div><div class="status-row"><span>City accuracy</span><b>Approximate</b></div><div class="status-row"><span>Missing / VPN locations</span><b>May show Unknown</b></div></section>
+  </div>
+  <section class="panel" style="margin-top:16px"><h3>Recent visitor sessions</h3><p class="panel-sub">Up to 100 recent sessions. A session is a browser visit, not a verified real-world identity.</p><div class="data-wrap"><table><thead><tr><th>Country</th><th>City / Region</th><th>Device</th><th>Browser</th><th>Pages</th><th>Events</th><th>First seen</th><th>Last seen</th></tr></thead><tbody>${recent.map(v=>`<tr><td>${esc(v.country||"Unknown")}${v.code?" ("+esc(v.code)+")":""}</td><td>${esc([v.city,v.region].filter(Boolean).join(", ")||"—")}</td><td>${esc(v.device||"Unknown")}</td><td>${esc(v.browser||"Unknown")}</td><td>${v.pages.size}</td><td>${v.events}</td><td>${esc(fmt(v.first))}</td><td>${esc(fmt(v.last))}</td></tr>`).join("")||'<tr><td colspan="8">No visitor sessions recorded yet. Visit the public website to create a test record.</td></tr>'}</tbody></table></div></section>
+  <p class="hint" style="margin-top:12px">Location is estimated from the visitor’s public IP by a third-party lookup service. VPNs, mobile networks and privacy tools can make city results inaccurate or unavailable. Raw IP addresses are not saved in PDFS analytics.</p>`;
+}
 async function renderView(view){
   currentView=view; const title=view==="overview"?"Overview":config[view]?.title||"Overview";
   $("#pageTitle").textContent=title;$("#pageCrumb").textContent=title;
   viewRoot.innerHTML='<div class="panel">Loading your workspace…</div>';
-  try{if(view==="overview")await renderOverview();else if(view==="security")await renderSecurity();else if(view==="appearance")await renderAppearance();else if(view==="backup")await renderBackup();else if(view==="analytics")await renderAnalytics();else await renderTable(view)}
+  try{if(view==="overview")await renderOverview();else if(view==="security")await renderSecurity();else if(view==="appearance")await renderAppearance();else if(view==="backup")await renderBackup();else if(view==="analytics")await renderAnalytics();else if(view==="visitors")await renderVisitors();else await renderTable(view)}
   catch(error){viewRoot.innerHTML='<div class="panel"><h3>Unable to load this section</h3><p class="panel-sub">'+esc(error.message)+'</p></div>'}
 }
 // Do not restore saved sessions: every fresh page load must require an email and password.
