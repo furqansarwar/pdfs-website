@@ -8,6 +8,47 @@ const $ = (s) => document.querySelector(s);
 const loginScreen = $("#loginScreen"), appShell = $("#appShell"), viewRoot = $("#viewRoot");
 const notice = $("#notice");
 let currentUser = null, currentView = "overview";
+const TURNSTILE_SITE_KEY = "0x4AAAAAAGVorLj07utvZInT";
+let turnstileWidgetId = null, captchaToken = "", turnstileReady = null;
+
+function loadTurnstile() {
+  if (window.turnstile) return Promise.resolve();
+  if (turnstileReady) return turnstileReady;
+  turnstileReady = new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+    script.async = true;
+    script.defer = true;
+    script.onload = () => window.turnstile ? resolve() : reject(new Error("Cloudflare verification could not be loaded."));
+    script.onerror = () => reject(new Error("Cloudflare verification could not be loaded. Check your connection and try again."));
+    document.head.appendChild(script);
+  });
+  return turnstileReady;
+}
+
+async function setupTurnstile() {
+  const message = $("#captchaMessage");
+  try {
+    await loadTurnstile();
+    turnstileWidgetId = window.turnstile.render("#turnstileWidget", {
+      sitekey: TURNSTILE_SITE_KEY,
+      theme: "light",
+      callback: (token) => { captchaToken = token; message.textContent = "Security check complete."; message.classList.add("verified"); },
+      "expired-callback": () => { captchaToken = ""; message.textContent = "Security check expired. Please verify again."; message.classList.remove("verified"); },
+      "error-callback": () => { captchaToken = ""; message.textContent = "Security check failed to load. Please refresh the page."; message.classList.remove("verified"); }
+    });
+  } catch (error) {
+    message.textContent = error.message;
+    message.classList.remove("verified");
+  }
+}
+
+function resetTurnstile() {
+  captchaToken = "";
+  $("#captchaMessage").textContent = "Complete the security check to sign in.";
+  $("#captchaMessage").classList.remove("verified");
+  if (window.turnstile && turnstileWidgetId !== null) window.turnstile.reset(turnstileWidgetId);
+}
 
 const config = {
   content: { title:"Website Content", table:"content_sections", columns:["title","slug","body","sort_order","is_published"], labels:["Title","Slug","Body","Sort order","Published"] },
@@ -55,15 +96,26 @@ $("#loginForm").addEventListener("submit", async (e) => {
   const btn = $("#loginButton"), msg = $("#loginMessage");
   btn.disabled = true; btn.textContent = "Signing in…"; msg.textContent = "";
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({ email: $("#email").value.trim(), password: $("#password").value });
+    await turnstileReady;
+    if (!captchaToken) throw new Error("Please complete the security check before signing in.");
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: $("#email").value.trim(),
+      password: $("#password").value,
+      options: { captchaToken }
+    });
     if (error) throw error;
     const role = await verifyAdmin(data.user);
     await enterApp(data.user, role.role);
   } catch (error) {
     msg.textContent = error.message || "Unable to sign in.";
     await supabase.auth.signOut();
-  } finally { btn.disabled = false; btn.innerHTML = 'Sign in <span>→</span>'; }
+  } finally {
+    resetTurnstile();
+    btn.disabled = false;
+    btn.innerHTML = 'Sign in <span>→</span>';
+  }
 });
+setupTurnstile();
 $("#logoutButton").addEventListener("click", async () => { await supabase.auth.signOut(); location.reload(); });
 // Reliable sidebar navigation: switch the content view without leaving the admin console.
 document.querySelectorAll("#sideNav [data-view]").forEach((button) => {
