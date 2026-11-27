@@ -885,3 +885,180 @@ console.log("PDFS website initialized successfully.");
   });
   window.addEventListener("beforeunload", revokePreviews);
 })();
+
+
+/* ==========================================
+   PDFS — LIVE CMS + PRIVACY-LIGHT ANALYTICS
+   Public content is read through RLS-protected
+   Supabase tables. File processing stays local.
+========================================== */
+(() => {
+  const SUPABASE_URL = "https://ifbhikajorxrslvnxmjx.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_GZuBTRceNBx0sYIb4M4FOQ_ksWzxrq7";
+  if (!window.supabase?.createClient) return;
+  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+  let sessionId = "";
+  try {
+    sessionId = sessionStorage.getItem("pdfs_analytics_session") || "";
+    if (!sessionId) {
+      sessionId = window.crypto?.randomUUID?.() || ("s-" + Date.now().toString(36) + Math.random().toString(36).slice(2));
+      sessionStorage.setItem("pdfs_analytics_session", sessionId);
+    }
+  } catch (_) {
+    sessionId = "s-" + Date.now().toString(36);
+  }
+
+  const track = (eventType, toolSlug = null) => {
+    db.from("analytics_events").insert({
+      event_type: eventType,
+      page_path: location.pathname + location.hash,
+      tool_slug: toolSlug,
+      session_id: sessionId
+    }).then(({ error }) => {
+      if (error) console.debug("PDFS analytics unavailable:", error.message);
+    });
+  };
+
+  const loadTools = async () => {
+    const { data, error } = await db.from("tools")
+      .select("slug,name,description,is_enabled,sort_order")
+      .order("sort_order", { ascending: true });
+    if (error || !data?.length) return;
+    const cards = Array.from(document.querySelectorAll("[data-tool]"));
+    data.forEach(item => {
+      const card = cards.find(el => el.dataset.tool === item.slug);
+      if (!card) return;
+      card.hidden = !item.is_enabled;
+      const name = card.querySelector("strong");
+      const description = card.querySelector("small");
+      if (name) name.textContent = item.name;
+      if (description) description.textContent = item.description;
+      card.setAttribute("aria-label", item.name + ": " + item.description);
+    });
+    const count = data.filter(item => item.is_enabled).length;
+    document.querySelectorAll(".tool-count").forEach(el => el.textContent = count + " AVAILABLE TOOLS");
+    document.querySelectorAll(".stats-section .stats-grid > div:first-child strong").forEach(el => el.textContent = count);
+    document.querySelectorAll(".cta-highlight-item:first-child .highlight-number").forEach(el => el.textContent = count);
+  };
+
+  const loadFaqs = async () => {
+    const { data, error } = await db.from("faqs")
+      .select("question,answer,sort_order")
+      .order("sort_order", { ascending: true });
+    if (error || !data?.length) return;
+    const container = document.querySelector(".faq-container");
+    if (!container) return;
+    container.replaceChildren();
+    data.forEach(item => {
+      const details = document.createElement("details");
+      details.className = "faq-item reveal visible";
+      const summary = document.createElement("summary");
+      const answer = document.createElement("p");
+      summary.textContent = item.question;
+      answer.textContent = item.answer;
+      details.append(summary, answer);
+      container.appendChild(details);
+    });
+  };
+
+  const loadBanners = async () => {
+    const now = new Date().toISOString();
+    const { data, error } = await db.from("banners")
+      .select("title,message,cta_label,cta_url,image_url,starts_at,ends_at")
+      .eq("is_enabled", true);
+    if (error || !data?.length) return;
+    const active = data.find(item =>
+      (!item.starts_at || item.starts_at <= now) &&
+      (!item.ends_at || item.ends_at >= now)
+    );
+    if (!active) return;
+    const host = document.createElement("section");
+    host.className = "pdfs-live-banner";
+    host.setAttribute("aria-label", "Announcement");
+    host.style.cssText = "max-width:1180px;margin:18px auto;padding:22px 26px;border:1px solid rgba(114,85,233,.18);border-radius:18px;background:linear-gradient(110deg,#f7f5ff,#fff);display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap";
+    const copy = document.createElement("div");
+    const title = document.createElement("strong");
+    const message = document.createElement("p");
+    title.textContent = active.title;
+    message.textContent = active.message;
+    message.style.cssText = "margin:6px 0 0;color:#68708a";
+    copy.append(title, message);
+    host.appendChild(copy);
+    if (active.cta_label && active.cta_url) {
+      const link = document.createElement("a");
+      link.textContent = active.cta_label;
+      link.href = active.cta_url;
+      link.style.cssText = "font-weight:700;color:#684ee0;text-decoration:none";
+      host.appendChild(link);
+    }
+    const main = document.querySelector("main");
+    if (main) main.prepend(host);
+  };
+
+  const loadCustomSections = async () => {
+    const { data, error } = await db.from("content_sections")
+      .select("slug,title,body,sort_order")
+      .order("sort_order", { ascending: true });
+    if (error || !data?.length) return;
+    const main = document.querySelector("main");
+    if (!main) return;
+    const host = document.createElement("div");
+    host.className = "pdfs-managed-content";
+    data.forEach(item => {
+      const section = document.createElement("section");
+      section.className = "section-wrap";
+      section.style.cssText = "padding-top:28px;padding-bottom:28px";
+      const heading = document.createElement("h2");
+      const body = document.createElement("p");
+      heading.textContent = item.title;
+      body.textContent = item.body;
+      section.append(heading, body);
+      host.appendChild(section);
+    });
+    const faq = document.querySelector("#faq");
+    main.insertBefore(host, faq || main.lastElementChild);
+  };
+
+  const loadSettings = async () => {
+    const { data, error } = await db.from("site_settings")
+      .select("setting_key,setting_value")
+      .eq("is_public", true);
+    if (error || !data?.length) return;
+    const settings = Object.fromEntries(data.map(item => [item.setting_key, item.setting_value]));
+    if (typeof settings.site_title === "string" && settings.site_title.trim()) {
+      document.title = settings.site_title;
+    }
+    if (typeof settings.meta_description === "string" && settings.meta_description.trim()) {
+      const meta = document.querySelector('meta[name="description"]');
+      if (meta) meta.content = settings.meta_description;
+    }
+  };
+
+  track("page_view");
+  loadTools();
+  loadFaqs();
+  loadBanners();
+  loadCustomSections();
+  loadSettings();
+
+  document.addEventListener("click", event => {
+    const tool = event.target.closest("[data-tool]");
+    if (tool) track("tool_open", tool.dataset.tool);
+  });
+  document.addEventListener("click", event => {
+    if (event.target.closest("#quickImageConvert")) track("tool_open", "jpg-pdf");
+  });
+  document.addEventListener("click", event => {
+    if (event.target.closest("#processBtn") && !event.target.closest("#processBtn").disabled) {
+      const active = document.querySelector("#modalTitle")?.textContent || "";
+      const slug = Object.entries({
+        "Merge PDF":"merge","Split PDF":"split","Compress PDF":"compress",
+        "PDF to Word":"pdf-word","Word to PDF":"word-pdf","PDF to JPG":"pdf-jpg",
+        "PDF to Excel":"pdf-excel","Rotate PDF":"rotate","Watermark PDF":"watermark",
+        "Protect PDF":"protect","Unlock PDF":"unlock"
+      }).find(([name]) => name === active)?.[1] || null;
+      if (slug) track("tool_process", slug);
+    }
+  });
+})();
