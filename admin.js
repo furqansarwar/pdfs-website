@@ -2,7 +2,7 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 const SUPABASE_URL = "https://ifbhikajorxrslvnxmjx.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_GZuBTRceNBx0sYIb4M4FOQ_ksWzxrq7";
-const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, { auth: { persistSession: false, autoRefreshToken: true, detectSessionInUrl: false } });
 
 const $ = (s) => document.querySelector(s);
 const loginScreen = $("#loginScreen"), appShell = $("#appShell"), viewRoot = $("#viewRoot");
@@ -201,6 +201,4 @@ async function renderView(view){
   try{if(view==="overview")await renderOverview();else await renderTable(view)}
   catch(error){viewRoot.innerHTML='<div class="panel"><h3>Unable to load this section</h3><p class="panel-sub">'+esc(error.message)+'</p></div>'}
 }
-supabase.auth.getSession().then(async ({data})=>{
-  if(data.session){try{const role=await verifyAdmin(data.session.user);await enterApp(data.session.user,role.role)}catch{await supabase.auth.signOut()}}
-});
+// Do not restore saved sessions: every fresh page load must require an email and password.
