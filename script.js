@@ -268,14 +268,16 @@ uploadZone.addEventListener("drop", event => {
     return config.accept.split(",").includes(extension);
   });
 
-  if (!selectedFiles.length) {
-    modalStatus.textContent = "Please select a supported file.";
-    return;
-  }
-
   if (!config.multiple) selectedFiles = selectedFiles.slice(0, 1);
 
   fileInput.value = "";
+  if (!selectedFiles.length) {
+    processBtn.disabled = true;
+    fileName.textContent = "Supported files: " + config.accept;
+    modalStatus.textContent = "No supported files found. Please choose " + config.accept + ".";
+    return;
+  }
+
   fileName.textContent = selectedFiles.map(f => f.name).join(", ");
   processBtn.disabled = activeTool === "protect";
   modalStatus.textContent = selectedFiles.length + " file(s) selected.";
@@ -351,8 +353,24 @@ async function processTool() {
     throw new Error("Please select a supported file before continuing.");
   }
 
-  if (!window.PDFLib || !window.pdfjsLib) {
-    throw new Error("PDF libraries could not load. Refresh and try again.");
+  const needsPdfLib = ["merge", "split", "compress", "rotate", "watermark", "unlock"].includes(activeTool);
+  const needsPdfJs = ["pdf-word", "pdf-jpg", "pdf-excel"].includes(activeTool);
+  const needsJsPdf = ["jpg-pdf", "word-pdf"].includes(activeTool);
+
+  if (needsPdfLib && !window.PDFLib) {
+    throw new Error("The PDF editing library could not load. Check your connection and refresh the page.");
+  }
+  if (needsPdfJs && !window.pdfjsLib) {
+    throw new Error("The PDF reading library could not load. Check your connection and refresh the page.");
+  }
+  if (needsJsPdf && !window.jspdf) {
+    throw new Error("The PDF creation library could not load. Check your connection and refresh the page.");
+  }
+  if (activeTool === "word-pdf" && !window.mammoth) {
+    throw new Error("The Word reading library could not load. Check your connection and refresh the page.");
+  }
+  if (activeTool === "pdf-excel" && !window.XLSX) {
+    throw new Error("The Excel export library could not load. Check your connection and refresh the page.");
   }
 
   const file = selectedFiles[0];
