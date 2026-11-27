@@ -295,7 +295,13 @@ uploadZone.addEventListener("drop", event => {
   }
 
   fileName.textContent = selectedFiles.map(f => f.name).join(", ");
-  processBtn.disabled = activeTool === "protect";
+  if (activeTool === "protect") {
+    const password = $("#protectPassword")?.value || "";
+    const confirmation = $("#confirmProtectPassword")?.value || "";
+    processBtn.disabled = password.length < 6 || password !== confirmation;
+  } else {
+    processBtn.disabled = false;
+  }
   modalStatus.textContent = selectedFiles.length + " file(s) selected.";
 });
 
