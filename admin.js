@@ -10,12 +10,12 @@ const notice = $("#notice");
 let currentUser = null, currentView = "overview";
 
 const config = {
-  content: { title:"Website Content", table:"content_sections", columns:["title","slug","is_published"], labels:["Title","Slug","Published"] },
-  tools: { title:"PDF Tools", table:"tools", columns:["name","slug","category","is_enabled"], labels:["Tool","Slug","Category","Enabled"] },
+  content: { title:"Website Content", table:"content_sections", columns:["title","slug","body","is_published"], labels:["Title","Slug","Body","Published"] },
+  tools: { title:"PDF Tools", table:"tools", columns:["name","slug","description","category","is_enabled"], labels:["Tool","Slug","Description","Category","Enabled"] },
   faqs: { title:"FAQs", table:"faqs", columns:["question","answer","is_published"], labels:["Question","Answer","Published"] },
-  banners: { title:"Banners", table:"banners", columns:["title","message","is_enabled"], labels:["Title","Message","Enabled"] },
+  banners: { title:"Banners", table:"banners", columns:["title","message","cta_label","cta_url","image_url","is_enabled"], labels:["Title","Message","Button label","Button URL","Image URL","Enabled"] },
   settings: { title:"Site Settings", table:"site_settings", columns:["setting_key","setting_value","is_public"], labels:["Setting","Value","Public"] },
-  ads: { title:"Ad Management", table:"ad_slots", columns:["placement","is_enabled"], labels:["Placement","Enabled"] },
+  ads: { title:"Ad Management", table:"ad_slots", columns:["placement","ad_code","is_enabled"], labels:["Placement","Ad code","Enabled"] },
   analytics: { title:"Analytics", table:"analytics_events", columns:["event_type","page_path","tool_slug","created_at"], labels:["Event","Page","Tool","Date"] },
   activity: { title:"Activity Log", table:"activity_logs", columns:["action","entity","actor_id","created_at"], labels:["Action","Section","Admin","Date"] }
 };
@@ -102,7 +102,7 @@ async function renderOverview() {
 }
 async function renderTable(view) {
   const c=config[view];
-  const {data,error}=await supabase.from(c.table).select("*").order("created_at",{ascending:false}).limit(100);
+  const {data,error}=await supabase.from(c.table).select("*").limit(100);
   if(error) throw error;
   const rows=data||[];
   const head=c.labels.map(x=>'<th>'+esc(x)+'</th>').join("");
