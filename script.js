@@ -924,6 +924,17 @@ console.log("PDFS website initialized successfully.");
     document.querySelectorAll(".cta-highlight-item:first-child .highlight-number").forEach(el => el.textContent = count);
   };
 
+  const loadFeaturedImageTool = async () => {
+    const featured = document.querySelector("#imageToPdfQuick");
+    if (!featured) return;
+    const { data, error } = await db.from("tools")
+      .select("is_enabled")
+      .eq("slug", "jpg-pdf")
+      .maybeSingle();
+    // Keep the converter visible if the control record cannot be read.
+    if (!error && data) featured.hidden = !data.is_enabled;
+  };
+
   const loadFaqs = async () => {
     const { data, error } = await db.from("faqs")
       .select("question,answer,sort_order")
@@ -1018,6 +1029,7 @@ console.log("PDFS website initialized successfully.");
   };
 
   loadTools();
+  loadFeaturedImageTool();
   loadFaqs();
   loadBanners();
   loadCustomSections();
