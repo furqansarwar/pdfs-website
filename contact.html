@@ -107,5 +107,6 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const client=createClient("https://ifbhikajorxrslvnxmjx.supabase.co","sb_publishable_GZuBTRceNBx0sYIb4M4FOQ_ksWzxrq7");
 document.querySelector("#pdfsSupportForm").addEventListener("submit",async e=>{e.preventDefault();const form=e.currentTarget,button=form.querySelector("button"),status=document.querySelector("#supportFormStatus");button.disabled=true;status.textContent="Sending…";const values=Object.fromEntries(new FormData(form));const {error}=await client.from("support_messages").insert(values);if(error){status.textContent="Message could not be sent. Please try again later.";button.disabled=false;return;}form.reset();status.textContent="Your message has been sent. Thank you.";button.disabled=false;});
 </script>
+  <script src="visitor-tracking.js"></script>
 </body>
 </html>
