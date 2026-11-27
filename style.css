@@ -111,13 +111,6 @@ button {
   gap: 16px;
 }
 
-.cofounder-top {
-  font-size: 9px;
-  color: #8a8da2;
-  max-width: 110px;
-  line-height: 1.4;
-}
-
 .nav-cta, .primary-btn, .cta-button {
   display: inline-flex;
   justify-content: center;
@@ -1260,9 +1253,7 @@ button {
 /* RESPONSIVE */
 
 @media (max-width: 1000px) {
-  .nav-links { gap: 17px; }
-  .cofounder-top { display: none; }
-  .hero { gap: 15px; }
+  .nav-links { gap: 17px; }.hero { gap: 15px; }
   .tools-grid { grid-template-columns: repeat(3, 1fr); }
   .feature-layout { gap: 45px; }
   .footer-main { gap: 25px; }
