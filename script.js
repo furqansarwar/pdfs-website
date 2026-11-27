@@ -927,6 +927,10 @@ console.log("PDFS website initialized successfully.");
     if (error || !data?.length) return;
     const cards = Array.from(document.querySelectorAll("[data-tool]"));
     data.forEach(item => {
+      if (tools[item.slug]) {
+        tools[item.slug].title = item.name;
+        tools[item.slug].description = item.description;
+      }
       const card = cards.find(el => el.dataset.tool === item.slug);
       if (!card) return;
       card.hidden = !item.is_enabled;
