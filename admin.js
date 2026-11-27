@@ -206,7 +206,7 @@ async function renderView(view){
   currentView=view; const title=view==="overview"?"Overview":config[view]?.title||"Overview";
   $("#pageTitle").textContent=title;$("#pageCrumb").textContent=title;
   viewRoot.innerHTML='<div class="panel">Loading your workspace…</div>';
-  try{if(view==="overview")await renderOverview();else if(view==="security")await renderSecurity();else if(view==="appearance")await renderAppearance();else if(view==="backup")await renderBackup();else await renderTable(view)}
+  try{if(view==="overview")await renderOverview();else if(view==="security")await renderSecurity();else if(view==="appearance")await renderAppearance();else if(view==="backup")await renderBackup();else if(view==="analytics")await renderAnalytics();else await renderTable(view)}
   catch(error){viewRoot.innerHTML='<div class="panel"><h3>Unable to load this section</h3><p class="panel-sub">'+esc(error.message)+'</p></div>'}
 }
 // Do not restore saved sessions: every fresh page load must require an email and password.
@@ -263,4 +263,17 @@ async function renderBackup(){
     }catch(error){status.textContent="Backup failed: "+error.message;}
     finally{btn.disabled=false;btn.textContent="Download JSON backup";}
   };
+}
+
+async function renderAnalytics(){
+  const {data,error}=await supabase.from("analytics_events").select("event_type,page_path,tool_slug,created_at").order("created_at",{ascending:false}).limit(5000);
+  if(error)throw error;
+  const rows=data||[], now=Date.now(), day=86400000;
+  const recent=rows.filter(x=>now-new Date(x.created_at).getTime()<7*day);
+  const byDay=Array.from({length:7},(_,i)=>{const d=new Date(now-(6-i)*day);const key=d.toLocaleDateString();return {label:d.toLocaleDateString(undefined,{weekday:"short"}),count:recent.filter(x=>new Date(x.created_at).toLocaleDateString()===key).length};});
+  const toolCounts={};rows.forEach(x=>{if(x.tool_slug)toolCounts[x.tool_slug]=(toolCounts[x.tool_slug]||0)+1;});
+  const top=Object.entries(toolCounts).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  viewRoot.innerHTML=`<div class="stats-grid"><div class="stat-card"><div class="stat-top">Total tracked events</div><div class="stat-number">${rows.length.toLocaleString()}</div><div class="stat-note">Stored analytics events (not unique visitors)</div></div><div class="stat-card"><div class="stat-top">Last 7 days</div><div class="stat-number">${recent.length.toLocaleString()}</div><div class="stat-note">Events recorded in the last seven days</div></div><div class="stat-card"><div class="stat-top">Tool events</div><div class="stat-number">${Object.values(toolCounts).reduce((a,b)=>a+b,0).toLocaleString()}</div><div class="stat-note">Events associated with a tool slug</div></div><div class="stat-card"><div class="stat-top">Tracked pages</div><div class="stat-number">${new Set(rows.map(x=>x.page_path).filter(Boolean)).size}</div><div class="stat-note">Distinct page paths recorded</div></div></div>
+  <div class="dashboard-grid"><section class="panel"><h3>Daily events · last 7 days</h3><div class="data-wrap"><table><thead><tr><th>Day</th><th>Events</th></tr></thead><tbody>${byDay.map(x=>`<tr><td>${esc(x.label)}</td><td>${x.count}</td></tr>`).join("")}</tbody></table></div></section><section class="panel"><h3>Most-used tools</h3><div class="data-wrap"><table><thead><tr><th>Tool slug</th><th>Events</th></tr></thead><tbody>${top.map(x=>`<tr><td>${esc(x[0])}</td><td>${x[1]}</td></tr>`).join("")||'<tr><td colspan="2">No tool events recorded yet.</td></tr>'}</tbody></table></div></section></div>
+  <section class="panel" style="margin-top:16px"><h3>Recent analytics events</h3><div class="data-wrap"><table><thead><tr><th>Event</th><th>Page</th><th>Tool</th><th>Date</th></tr></thead><tbody>${rows.slice(0,50).map(x=>`<tr><td>${esc(x.event_type)}</td><td>${esc(x.page_path||"—")}</td><td>${esc(x.tool_slug||"—")}</td><td>${esc(new Date(x.created_at).toLocaleString())}</td></tr>`).join("")||'<tr><td colspan="4">No events recorded yet.</td></tr>'}</tbody></table></div></section>`;
 }
