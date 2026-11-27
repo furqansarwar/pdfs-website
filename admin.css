@@ -5,3 +5,6 @@
 @media(max-width:760px){.table-head{align-items:stretch;flex-direction:column;gap:13px}.table-actions{flex-wrap:wrap}.table-search{flex:1;min-width:100%}.editor-backdrop{padding:10px}.editor-card .form-grid{grid-template-columns:1fr;padding:16px}.editor-heading{padding:19px 16px 4px}.editor-card .form-actions{padding:0 16px 18px}}
 
 .extension-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.extension-grid .panel{min-width:0}.extension-grid h2,.panel h2{font:800 17px "Plus Jakarta Sans";margin:3px 0 8px}.full-panel{grid-column:1/-1}.extension-actions{display:flex;gap:9px;margin-top:20px;flex-wrap:wrap}.panel .stats-grid{margin-top:18px}.panel .stat-card{box-shadow:none}@media(max-width:760px){.extension-grid{grid-template-columns:1fr}.full-panel{grid-column:auto}}
+
+/* Visitor location dashboard */
+.visitor-map-note{color:#9297a9;font-size:10px;line-height:1.7}
