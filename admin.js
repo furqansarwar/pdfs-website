@@ -62,11 +62,16 @@ $("#loginForm").addEventListener("submit", async (e) => {
   } finally { btn.disabled = false; btn.innerHTML = 'Sign in <span>→</span>'; }
 });
 $("#logoutButton").addEventListener("click", async () => { await supabase.auth.signOut(); location.reload(); });
-$("#sideNav").addEventListener("click", async (e) => {
-  const button = e.target.closest("[data-view]"); if (!button) return;
-  document.querySelectorAll(".nav-item").forEach(x => x.classList.toggle("active", x === button));
-  $("#sidebar").classList.remove("open");
-  await renderView(button.dataset.view);
+// Reliable sidebar navigation: switch the content view without leaving the admin console.
+document.querySelectorAll("#sideNav [data-view]").forEach((button) => {
+  button.type = "button";
+  button.addEventListener("click", async (e) => {
+    e.preventDefault();
+    const view = button.dataset.view;
+    $("#sidebar").classList.remove("open");
+    await selectView(view);
+    history.replaceState(null, "", "#" + view);
+  });
 });
 $("#mobileMenu").addEventListener("click", () => $("#sidebar").classList.toggle("open"));
 
@@ -180,7 +185,15 @@ async function deleteRecord(view,key){
   await supabase.from("activity_logs").insert({actor_id:currentUser.id,action:"delete",entity:c.table,entity_id:String(key),details:{record_id:String(key)}});
   showNotice("Record deleted.");await renderView(view);
 }
-async function selectView(view){document.querySelectorAll(".nav-item").forEach(x=>x.classList.toggle("active",x.dataset.view===view));await renderView(view)}
+async function selectView(view){
+  if(view!=="overview" && !config[view]) return;
+  document.querySelectorAll(".nav-item").forEach(x=>{
+    const active=x.dataset.view===view;
+    x.classList.toggle("active",active);
+    if(active) x.setAttribute("aria-current","page"); else x.removeAttribute("aria-current");
+  });
+  await renderView(view);
+}
 async function renderView(view){
   currentView=view; const title=view==="overview"?"Overview":config[view]?.title||"Overview";
   $("#pageTitle").textContent=title;$("#pageCrumb").textContent=title;
