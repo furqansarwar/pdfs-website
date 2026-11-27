@@ -3140,3 +3140,57 @@ header.navbar .nav-links a {
  .contact-help-card {padding:19px;}
  .contact-bottom-links {flex-direction:column;}
 }
+
+
+/* CONTACT PAGE — FINAL VISUAL POLISH */
+.contact-page { background:#f5f6fb; color:#252943; }
+.contact-page .legal-navbar { min-height:76px; padding-left:max(22px,calc((100% - 1160px)/2)); padding-right:max(22px,calc((100% - 1160px)/2)); border-bottom:1px solid #eceef5; }
+.contact-page .legal-back { margin-bottom:26px; color:#6550cf; text-decoration:none; font-size:13px; transition:color .2s,transform .2s; }
+.contact-page .legal-back:hover { color:#4935b2; transform:translateX(-3px); }
+.contact-hero { border-color:#e5e2f1; background:radial-gradient(circle at 84% 18%,rgba(126,103,238,.15),transparent 30%),linear-gradient(118deg,#fff 0%,#f7f5ff 58%,#eeebff 100%); box-shadow:0 20px 55px rgba(31,29,76,.065); }
+.contact-hero:after { content:"";position:absolute;right:-100px;bottom:-175px;width:360px;height:360px;border:1px solid rgba(114,85,233,.12);border-radius:50%;pointer-events:none; }
+.contact-eyebrow { border-color:#e6e1f7;background:#fff;color:#5d49c3;box-shadow:0 4px 14px rgba(50,40,120,.045); }
+.contact-hero h1 { color:#171b3b; }
+.contact-hero h1 span { background:linear-gradient(90deg,#7255e9,#9278f4);-webkit-background-clip:text;background-clip:text;color:transparent; }
+.contact-hero-copy>p { color:#626982; }
+.contact-hero-points span { color:#555d75; }
+.contact-art-orbit { border-color:rgba(103,79,210,.19); }
+.art-file,.art-chat { border-color:#e8e5f2;box-shadow:0 18px 42px rgba(42,35,98,.13); }
+.contact-art-bubble { background:linear-gradient(145deg,#8067f1 0%,#5940c8 100%);box-shadow:0 18px 42px rgba(96,72,205,.27); }
+.contact-section-heading h2 { color:#191e3d; }
+.contact-section-heading h2 span { color:#7055df; }
+.contact-section-heading p { color:#70778d; }
+.contact-method-card { border-color:#e6e8f0;box-shadow:0 10px 30px rgba(29,34,73,.045); }
+.contact-method-card:hover { border-color:#d9d2f5;box-shadow:0 18px 38px rgba(48,39,112,.09); }
+.contact-method-icon { box-shadow:inset 0 0 0 1px rgba(60,55,110,.035); }
+.contact-method-label { color:#858ba0; }
+.contact-method-card h3 { color:#202541; }
+.contact-method-card p { color:#697087; }
+.contact-method-number { color:#171b3b;letter-spacing:.025em; }
+.phone-method .contact-method-icon { background:#eeebff;color:#624bd0; }
+.phone-button { background:#24294b; }
+.whatsapp-button { background:#159b55; }
+.contact-help-card { border-color:#e7e9f1;box-shadow:0 8px 24px rgba(29,34,73,.025);transition:transform .22s,border-color .22s,box-shadow .22s; }
+.contact-help-card:hover { transform:translateY(-3px);border-color:#dcd5f5;box-shadow:0 14px 28px rgba(40,35,95,.06); }
+.contact-help-card>span { background:#efedff;color:#654ed2; }
+.contact-help-card h3 { color:#242844; }
+.contact-help-card p { color:#6e758a; }
+.contact-note { border-color:#e3def6;background:linear-gradient(105deg,#f0edff,#f7f5ff); }
+.contact-note-icon { color:#634dce;box-shadow:0 3px 10px rgba(55,44,120,.06); }
+.contact-note h3 { color:#252946; }
+.contact-note p { color:#626a82; }
+.contact-bottom-links { border-color:#e1e4ee; }
+.contact-bottom-links a { color:#604bc8;text-decoration:none;transition:color .2s; }
+.contact-bottom-links a:hover { color:#3f2eaa;text-decoration:underline; }
+.contact-page .legal-footer { padding-left:max(22px,calc((100% - 1100px)/2));padding-right:max(22px,calc((100% - 1100px)/2));background:#171b3b;color:#e1e3f0; }
+.contact-page .legal-footer span { color:#aeb3d1; }
+@media(max-width:760px) {
+ .contact-page .legal-navbar { padding-left:16px;padding-right:16px; }
+ .contact-hero { background:radial-gradient(circle at 80% 82%,rgba(126,103,238,.13),transparent 34%),linear-gradient(145deg,#fff,#f1eeff); }
+ .contact-hero-points { gap:12px; }
+ .contact-method-card { box-shadow:0 8px 22px rgba(29,34,73,.04); }
+ .contact-page .legal-footer { padding:20px 16px; }
+}
+@media(prefers-reduced-motion:reduce) {
+ .contact-page * { scroll-behavior:auto!important;transition:none!important; }
+}
