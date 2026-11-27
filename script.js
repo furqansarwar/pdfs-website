@@ -798,14 +798,16 @@ console.log("PDFS website initialized successfully.");
   const convert = $("#quickImageConvert");
   const status = $("#quickImageStatus");
   const selected = $("#quickImageSelected");
+  const addMore = $("#quickImageAddMore");
   const list = $("#quickImageList");
-  if (!drop || !input || !choose || !convert || !status || !selected || !list) return;
+  if (!drop || !input || !choose || !convert || !status || !selected || !list || !addMore) return;
 
   let images = [];
   let previews = [];
   const revokePreviews = () => { previews.forEach(url => URL.revokeObjectURL(url)); previews = []; };
 
   const renderImages = () => {
+    revokePreviews();
     list.innerHTML = "";
     images.forEach((file, index) => {
       const item = document.createElement("div");
@@ -839,6 +841,7 @@ console.log("PDFS website initialized successfully.");
   };
 
   choose.addEventListener("click", () => input.click());
+  addMore.addEventListener("click", () => input.click());
   input.addEventListener("change", () => { showFiles(input.files); input.value = ""; });
   ["dragenter", "dragover"].forEach(type => drop.addEventListener(type, event => { event.preventDefault(); drop.classList.add("dragover"); }));
   ["dragleave", "dragend"].forEach(type => drop.addEventListener(type, event => { event.preventDefault(); if (!drop.contains(event.relatedTarget)) drop.classList.remove("dragover"); }));
