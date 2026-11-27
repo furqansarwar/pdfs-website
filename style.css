@@ -2883,3 +2883,8 @@ header.navbar .nav-links a {
 .quick-image-hint { color:var(--muted);font-size:11px; }
 #quickImageConvert:disabled { opacity:.45;cursor:not-allowed; }
 @media(max-width:760px) { .image-pdf-quick { grid-template-columns:1fr;gap:22px;padding:21px;margin:20px 0 28px; } .image-pdf-drop { min-height:195px;padding:20px 14px; } .quick-image-actions { align-items:stretch;flex-direction:column; } .quick-image-actions .primary-btn { width:100%; } .quick-image-hint { text-align:center; } }
+
+.image-pdf-drop[hidden], .quick-image-selected[hidden] { display:none !important; }
+.quick-image-list-heading { flex-wrap:wrap; }
+.quick-image-add { border:0;background:transparent;color:var(--purple);font-size:11px;font-weight:700;cursor:pointer;padding:5px 0; }
+.quick-image-add:hover { text-decoration:underline; }
