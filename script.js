@@ -898,28 +898,6 @@ console.log("PDFS website initialized successfully.");
   if (!window.supabase?.createClient) return;
   const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
-  let sessionId = "";
-  try {
-    sessionId = sessionStorage.getItem("pdfs_analytics_session") || "";
-    if (!sessionId) {
-      sessionId = window.crypto?.randomUUID?.() || ("s-" + Date.now().toString(36) + Math.random().toString(36).slice(2));
-      sessionStorage.setItem("pdfs_analytics_session", sessionId);
-    }
-  } catch (_) {
-    sessionId = "s-" + Date.now().toString(36);
-  }
-
-  const track = (eventType, toolSlug = null) => {
-    db.from("analytics_events").insert({
-      event_type: eventType,
-      page_path: location.pathname + location.hash,
-      tool_slug: toolSlug,
-      session_id: sessionId
-    }).then(({ error }) => {
-      if (error) console.debug("PDFS analytics unavailable:", error.message);
-    });
-  };
-
   const loadTools = async () => {
     const { data, error } = await db.from("tools")
       .select("slug,name,description,is_enabled,sort_order")
@@ -1039,30 +1017,10 @@ console.log("PDFS website initialized successfully.");
     }
   };
 
-  track("page_view");
   loadTools();
   loadFaqs();
   loadBanners();
   loadCustomSections();
   loadSettings();
 
-  document.addEventListener("click", event => {
-    const tool = event.target.closest("[data-tool]");
-    if (tool) track("tool_open", tool.dataset.tool);
-  });
-  document.addEventListener("click", event => {
-    if (event.target.closest("#quickImageConvert")) track("tool_open", "jpg-pdf");
-  });
-  document.addEventListener("click", event => {
-    if (event.target.closest("#processBtn") && !event.target.closest("#processBtn").disabled) {
-      const active = document.querySelector("#modalTitle")?.textContent || "";
-      const slug = Object.entries({
-        "Merge PDF":"merge","Split PDF":"split","Compress PDF":"compress",
-        "PDF to Word":"pdf-word","Word to PDF":"word-pdf","PDF to JPG":"pdf-jpg",
-        "PDF to Excel":"pdf-excel","Rotate PDF":"rotate","Watermark PDF":"watermark",
-        "Protect PDF":"protect","Unlock PDF":"unlock"
-      }).find(([name]) => name === active)?.[1] || null;
-      if (slug) track("tool_process", slug);
-    }
-  });
 })();
