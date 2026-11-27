@@ -43,20 +43,32 @@ navLinks?.querySelectorAll("a").forEach(link => {
   });
 });
 
-/* SCROLL ANIMATIONS */
+/* PREMIUM SCROLL REVEALS */
+const revealElements = document.querySelectorAll(".reveal");
 
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
+if ("IntersectionObserver" in window) {
+  const revealObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
       entry.target.classList.add("visible");
       observer.unobserve(entry.target);
-    }
+    });
+  }, {
+    threshold: 0.08,
+    rootMargin: "0px 0px -45px 0px"
   });
-}, { threshold: 0.12 });
 
-document.querySelectorAll(".reveal").forEach(element => {
-  observer.observe(element);
-});
+  revealElements.forEach((element, index) => {
+    const siblings = element.parentElement
+      ? Array.from(element.parentElement.children).filter(child => child.classList.contains("reveal"))
+      : [];
+    const stagger = siblings.length > 1 ? siblings.indexOf(element) * 90 : 0;
+    element.style.setProperty("--reveal-delay", Math.min(stagger, 360) + "ms");
+    revealObserver.observe(element);
+  });
+} else {
+  revealElements.forEach(element => element.classList.add("visible"));
+}
 
 /* TOOL INFORMATION */
 
