@@ -12,30 +12,11 @@
   } catch (_) {
     sessionId = "s-" + Date.now().toString(36) + Math.random().toString(36).slice(2);
   }
-  let locationPromise;
-  const getApproximateLocation = () => {
-    if (locationPromise) return locationPromise;
-    locationPromise = (async () => {
-      try {
-        if (sessionStorage.getItem("pdfs_geo_recorded") === "1") return null;
-        const response = await fetch("https://ipwho.is/", { signal: AbortSignal.timeout(4500) });
-        if (!response.ok) return null;
-        const geo = await response.json();
-        if (geo.success !== true) return null;
-        sessionStorage.setItem("pdfs_geo_recorded", "1");
-        return { country: geo.country || null, country_code: geo.country_code || null,
-          region: geo.region || null, city: geo.city || null, timezone: geo.timezone?.id || null };
-      } catch (_) { return null; }
-    })();
-    return locationPromise;
-  };
   const send = async (eventType, toolSlug = null) => {
-    let location = null;
-    if (eventType === "page_view") location = await getApproximateLocation();
     try {
       await fetch(URL, { method: "POST", headers: { "Content-Type": "application/json", "apikey": KEY },
         body: JSON.stringify({ event_type: eventType, page_path: window.location.pathname + window.location.hash,
-          tool_slug: toolSlug, session_id: sessionId, location }), keepalive: true });
+          tool_slug: toolSlug, session_id: sessionId }), keepalive: true });
     } catch (_) { /* analytics must never interrupt the website */ }
   };
   send("page_view");
