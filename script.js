@@ -115,7 +115,7 @@ const tools = {
   },
   protect: {
     title: "Protect PDF",
-    description: "PDF password encryption is not supported by this browser-only version yet.",
+    description: "Encrypt your PDF with a strong AES-256 password. Processing happens locally in your browser.",
     accept: ".pdf"
   },
   unlock: {
@@ -147,7 +147,7 @@ function openTool(name) {
   modalStatus.textContent = "";
   toolOptions.innerHTML = "";
   processBtn.disabled = true;
-  processBtn.innerHTML = name === "protect" ? "Coming soon" : 'Continue <i class="fa-solid fa-arrow-right"></i>';
+  processBtn.innerHTML = name === "protect" ? "Protect PDF" : 'Continue <i class="fa-solid fa-arrow-right"></i>';
 
   if (name === "split") {
     toolOptions.innerHTML = `
@@ -177,11 +177,23 @@ function openTool(name) {
 
   if (name === "protect") {
     toolOptions.innerHTML = `
-      <p class="tool-notice" role="status">
-        Password protection is not available in this version. This option is shown for transparency and cannot process files yet.
-      </p>`;
+      <label for="protectPassword">Set PDF password
+        <input type="password" id="protectPassword" autocomplete="new-password" minlength="6" placeholder="At least 6 characters">
+      </label>
+      <label for="confirmProtectPassword">Confirm password
+        <input type="password" id="confirmProtectPassword" autocomplete="new-password" minlength="6" placeholder="Re-enter your password">
+      </label>
+      <p class="tool-notice" role="note">AES-256 encryption runs in your browser. Your PDF and password are not uploaded. Keep your password safe — it cannot be recovered.</p>`;
     processBtn.disabled = true;
-    processBtn.textContent = "Coming soon";
+    processBtn.textContent = "Protect PDF";
+    const validateProtectPassword = () => {
+      const password = $("#protectPassword")?.value || "";
+      const confirmation = $("#confirmProtectPassword")?.value || "";
+      processBtn.disabled = selectedFiles.length === 0 || password.length < 6 || password !== confirmation;
+      modalStatus.textContent = password && confirmation && password !== confirmation ? "Passwords do not match." : password.length > 0 && password.length < 6 ? "Use at least 6 characters for your password." : "";
+    };
+    $("#protectPassword").addEventListener("input", validateProtectPassword);
+    $("#confirmProtectPassword").addEventListener("input", validateProtectPassword);
   }
 
   modal.classList.add("open");
@@ -239,7 +251,11 @@ fileInput.addEventListener("change", () => {
 
   if (!tools[activeTool].multiple) selectedFiles = selectedFiles.slice(0, 1);
   fileName.textContent = selectedFiles.map(file => file.name).join(", ");
-  processBtn.disabled = activeTool === "protect";
+  if (activeTool === "protect") {
+    const password = $("#protectPassword")?.value || "";
+    const confirmation = $("#confirmProtectPassword")?.value || "";
+    processBtn.disabled = password.length < 6 || password !== confirmation;
+  } else { processBtn.disabled = false; }
   modalStatus.textContent = selectedFiles.length + " file(s) selected.";
 });
 
@@ -351,6 +367,25 @@ function loadDocxLibrary() {
 async function processTool() {
   if (!selectedFiles.length) {
     throw new Error("Please select a supported file before continuing.");
+  }
+
+  if (activeTool === "protect") {
+    const password = $("#protectPassword")?.value || "";
+    const confirmation = $("#confirmProtectPassword")?.value || "";
+    if (password.length < 6) throw new Error("Please use a password with at least 6 characters.");
+    if (password !== confirmation) throw new Error("The passwords do not match.");
+    modalStatus.textContent = "Loading secure PDF encryption engine...";
+    const { default: createQpdf } = await import("https://cdn.jsdelivr.net/npm/@jspawn/qpdf-wasm@0.0.2/qpdf.mjs");
+    const qpdf = await createQpdf({ locateFile: path => "https://cdn.jsdelivr.net/npm/@jspawn/qpdf-wasm@0.0.2/" + path, noInitialRun: true, print: () => {}, printErr: () => {} });
+    modalStatus.textContent = "Encrypting your PDF with AES-256...";
+    qpdf.FS.writeFile("/input.pdf", new Uint8Array(await file.arrayBuffer()));
+    const exitCode = qpdf.callMain(["--encrypt", password, password, "256", "--", "/input.pdf", "/protected.pdf"]);
+    if (exitCode !== 0) throw new Error("PDF encryption failed. Please check that this is a valid, unprotected PDF.");
+    const encryptedBytes = qpdf.FS.readFile("/protected.pdf");
+    if (!encryptedBytes || encryptedBytes.length < 10) throw new Error("The encrypted PDF could not be created.");
+    downloadBlob(new Blob([encryptedBytes], { type: "application/pdf" }), outputName(file, "-protected"));
+    qpdf.FS.unlink("/input.pdf"); qpdf.FS.unlink("/protected.pdf");
+    return;
   }
 
   const needsPdfLib = ["merge", "split", "compress", "rotate", "watermark", "unlock"].includes(activeTool);
@@ -705,13 +740,6 @@ async function processTool() {
       break;
     }
 
-    /* PROTECT PDF */
-
-    case "protect": {
-      throw new Error(
-        "Password protection is not available in this browser-only version yet."
-      );
-    }
 
     default:
       throw new Error("This tool is not available.");
@@ -743,7 +771,7 @@ processBtn.addEventListener("click", async () => {
     processBtn.innerHTML = "Try Again";
   }
 
-  processBtn.disabled = activeTool === "protect" || selectedFiles.length === 0;
+  processBtn.disabled = selectedFiles.length === 0;
 });
 
 /* LEGAL LINKS
