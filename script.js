@@ -754,3 +754,118 @@ processBtn.addEventListener("click", async () => {
 console.log("PDFS website initialized successfully.");
 
 
+
+
+/* FEATURED IMAGE TO PDF QUICK CONVERTER */
+(() => {
+  const drop = $("#quickImageDrop");
+  const input = $("#quickImageInput");
+  const choose = $("#quickImageChoose");
+  const convert = $("#quickImageConvert");
+  const status = $("#quickImageStatus");
+  if (!drop || !input || !choose || !convert || !status) return;
+
+  let images = [];
+
+  const showFiles = files => {
+    const accepted = Array.from(files || []).filter(file =>
+      ["image/jpeg", "image/png"].includes(file.type) ||
+      /\\.(jpe?g|png)$/i.test(file.name)
+    );
+    if (!accepted.length) {
+      images = [];
+      convert.disabled = true;
+      status.textContent = "Please choose JPG, JPEG or PNG images.";
+      return;
+    }
+    images = accepted;
+    convert.disabled = false;
+    status.textContent = images.length + " image(s) selected — " +
+      images.map(file => file.name).join(", ");
+  };
+
+  choose.addEventListener("click", event => {
+    event.stopPropagation();
+    input.click();
+  });
+  drop.addEventListener("click", event => {
+    if (event.target.closest("button")) return;
+    input.click();
+  });
+  drop.addEventListener("keydown", event => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      input.click();
+    }
+  });
+  input.addEventListener("change", () => showFiles(input.files));
+
+  ["dragenter", "dragover"].forEach(type => drop.addEventListener(type, event => {
+    event.preventDefault();
+    drop.classList.add("dragover");
+  }));
+  ["dragleave", "dragend"].forEach(type => drop.addEventListener(type, event => {
+    event.preventDefault();
+    if (!drop.contains(event.relatedTarget)) drop.classList.remove("dragover");
+  }));
+  drop.addEventListener("drop", event => {
+    event.preventDefault();
+    drop.classList.remove("dragover");
+    showFiles(event.dataTransfer.files);
+  });
+
+  convert.addEventListener("click", async event => {
+    event.stopPropagation();
+    if (!images.length) return;
+    if (!window.jspdf?.jsPDF) {
+      status.textContent = "PDF creation library could not load. Refresh and try again.";
+      return;
+    }
+
+    convert.disabled = true;
+    choose.disabled = true;
+    status.textContent = "Creating your PDF...";
+    try {
+      const { jsPDF } = window.jspdf;
+      let pdf;
+      for (let i = 0; i < images.length; i++) {
+        const file = images[i];
+        const dataUrl = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = () => reject(new Error("Could not read " + file.name));
+          reader.readAsDataURL(file);
+        });
+        const dimensions = await new Promise((resolve, reject) => {
+          const image = new Image();
+          image.onload = () => resolve({ width: image.naturalWidth, height: image.naturalHeight });
+          image.onerror = () => reject(new Error("Invalid image: " + file.name));
+          image.src = dataUrl;
+        });
+        const orientation = dimensions.width >= dimensions.height ? "landscape" : "portrait";
+        if (!pdf) pdf = new jsPDF({ orientation, unit: "pt", format: "a4" });
+        else pdf.addPage("a4", orientation);
+
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        const margin = 24;
+        const ratio = Math.min(
+          (pageWidth - margin * 2) / dimensions.width,
+          (pageHeight - margin * 2) / dimensions.height
+        );
+        const width = dimensions.width * ratio;
+        const height = dimensions.height * ratio;
+        const format = file.type === "image/png" ? "PNG" : "JPEG";
+        pdf.addImage(dataUrl, format, (pageWidth - width) / 2, (pageHeight - height) / 2, width, height);
+      }
+      pdf.save("images-to-pdf.pdf");
+      status.textContent = "Done! Your PDF download has started.";
+    } catch (error) {
+      console.error(error);
+      status.textContent = error.message || "Could not create the PDF. Please try again.";
+    } finally {
+      convert.disabled = images.length === 0;
+      choose.disabled = false;
+    }
+  });
+})();
