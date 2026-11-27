@@ -2888,23 +2888,3 @@ header.navbar .nav-links a {
 .quick-image-list-heading { flex-wrap:wrap; }
 .quick-image-add { border:0;background:transparent;color:var(--purple);font-size:11px;font-weight:700;cursor:pointer;padding:5px 0; }
 .quick-image-add:hover { text-decoration:underline; }
-
-
-/* Explore PDF tools — unified, balanced section background */
-.tools-section {
-  background: #fbfaff !important;
-  background-image: none !important;
-  border-top: 1px solid #f0edfa;
-  border-bottom: 1px solid #f0edfa;
-}
-
-.tools-section .image-pdf-quick {
-  background: #ffffff !important;
-  border: 1px solid #ebe7f5 !important;
-  box-shadow: 0 14px 38px rgba(38, 30, 83, .07) !important;
-}
-
-.tools-section .tool-card {
-  background: #ffffff !important;
-  border-color: #ebe7f5 !important;
-}
