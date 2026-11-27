@@ -95,7 +95,7 @@ async function renderOverview() {
         <div class="status-row"><span>Supabase connection</span><b class="status-ok">Connected</b></div>
         <div class="status-row"><span>Administrator access</span><b class="status-ok">Verified</b></div>
         <div class="status-row"><span>Database security</span><b class="status-ok">RLS enabled</b></div>
-        <div class="status-row"><span>Analytics tracking</span><b>Awaiting website integration</b></div>
+        <div class="status-row"><span>Analytics tracking</span><b class="status-ok">Connected</b></div>
       </div>
     </div>`;
   viewRoot.querySelectorAll("[data-jump]").forEach(b=>b.addEventListener("click",()=>selectView(b.dataset.jump)));
@@ -104,19 +104,20 @@ function fieldMarkup(col,label,value) {
   const bools=["is_enabled","is_published","is_public"];
   const jsons=["setting_value","config"];
   const longText=["body","answer","message","ad_code"];
+  const requiredFields=["title","slug","body","name","description","category","question","answer","message","setting_key","placement","ad_code"];
   const dateFields=["starts_at","ends_at"];
   const numeric=["sort_order"];
   const val=value==null?"":(typeof value==="object"?JSON.stringify(value,null,2):String(value));
   if(bools.includes(col)) return '<div class="form-field"><label>'+esc(label)+'</label><select name="'+col+'"><option value="true" '+(value===true?'selected':'')+'>Enabled / Yes</option><option value="false" '+(value!==true?'selected':'')+'>Disabled / No</option></select></div>';
   if(jsons.includes(col)) return '<div class="form-field full"><label>'+esc(label)+'</label><textarea name="'+col+'" spellcheck="false">'+esc(val||"{}")+'</textarea><small class="hint">Enter valid JSON. Example: {"featured": true}</small></div>';
-  if(longText.includes(col)) return '<div class="form-field full"><label>'+esc(label)+'</label><textarea name="'+col+'">'+esc(val)+'</textarea></div>';
+  if(longText.includes(col)) return '<div class="form-field full"><label>'+esc(label)+'</label><textarea name="'+col+'" '+(requiredFields.includes(col)?'required':'')+'>'+esc(val)+'</textarea></div>';
   if(dateFields.includes(col)) {
     const dateVal=value?new Date(value).toISOString().slice(0,16):"";
     return '<div class="form-field"><label>'+esc(label)+'</label><input type="datetime-local" name="'+col+'" value="'+esc(dateVal)+'"></div>';
   }
   if(numeric.includes(col)) return '<div class="form-field"><label>'+esc(label)+'</label><input type="number" step="1" name="'+col+'" value="'+esc(val||"0")+'"></div>';
   const type=(col==="image_url"||col==="cta_url")?"url":"text";
-  return '<div class="form-field"><label>'+esc(label)+'</label><input type="'+type+'" name="'+col+'" value="'+esc(val)+'" '+(["title","slug","name","question","placement","setting_key"].includes(col)?'required':'')+'></div>';
+  return '<div class="form-field"><label>'+esc(label)+'</label><input type="'+type+'" name="'+col+'" value="'+esc(val)+'" '+(requiredFields.includes(col)?'required':'')+'></div>';
 }
 async function renderTable(view) {
   const c=config[view];
@@ -176,7 +177,7 @@ async function deleteRecord(view,key){
   const c=config[view], idCol=view==="settings"?"setting_key":"id";
   const {error}=await supabase.from(c.table).delete().eq(idCol,key);
   if(error){showNotice(error.message,"error");return}
-  await supabase.from("activity_logs").insert({actor_id:currentUser.id,action:"delete",entity:c.table,entity_id:String(key)});
+  await supabase.from("activity_logs").insert({actor_id:currentUser.id,action:"delete",entity:c.table,entity_id:String(key),details:{record_id:String(key)}});
   showNotice("Record deleted.");await renderView(view);
 }
 async function selectView(view){document.querySelectorAll(".nav-item").forEach(x=>x.classList.toggle("active",x.dataset.view===view));await renderView(view)}
