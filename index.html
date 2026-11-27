@@ -88,19 +88,29 @@
     <div class="image-pdf-copy">
       <span class="section-kicker">POPULAR TOOL</span>
       <h3><i class="fa-regular fa-images"></i> Image to PDF</h3>
-      <p>Turn JPG and PNG images into one PDF. Add multiple images and arrange them in the order you choose.</p>
-      <small id="quickImageStatus" role="status">JPG · JPEG · PNG</small>
+      <p>Convert your photos into a clean PDF in seconds. Select multiple images, arrange their page order, and download one PDF.</p>
+      <div class="image-pdf-formats"><span>JPG</span><span>JPEG</span><span>PNG</span></div>
+      <p class="image-pdf-private"><i class="fa-solid fa-lock"></i> Files stay on your device. No upload required.</p>
     </div>
-    <div class="image-pdf-drop" id="quickImageDrop" tabindex="0" role="button" aria-label="Choose or drop images to convert to PDF">
-      <i class="fa-solid fa-cloud-arrow-up"></i>
-      <strong>Drag &amp; drop your images here</strong>
-      <span>or click to browse from your device</span>
-      <input type="file" id="quickImageInput" accept=".jpg,.jpeg,.png,image/jpeg,image/png" multiple hidden>
-      <button type="button" class="primary-btn" id="quickImageChoose">Choose Images</button>
-      <button type="button" class="primary-btn" id="quickImageConvert" disabled>Convert to PDF <i class="fa-solid fa-arrow-right"></i></button>
+    <div class="image-pdf-workspace">
+      <div class="image-pdf-drop" id="quickImageDrop">
+        <span class="image-pdf-upload-icon"><i class="fa-solid fa-cloud-arrow-up"></i></span>
+        <strong>Drag &amp; drop your images here</strong>
+        <span>or browse files from your device</span>
+        <input type="file" id="quickImageInput" accept=".jpg,.jpeg,.png,image/jpeg,image/png" multiple hidden>
+        <button type="button" class="primary-btn" id="quickImageChoose">Choose Images</button>
+      </div>
+      <div class="quick-image-selected" id="quickImageSelected" hidden>
+        <div class="quick-image-list-heading"><strong>Your images</strong><span id="quickImageStatus" role="status">0 images selected</span></div>
+        <div class="quick-image-list" id="quickImageList"></div>
+      </div>
+      <div class="quick-image-actions">
+        <span class="quick-image-hint">Arrange images using the arrows</span>
+        <button type="button" class="primary-btn" id="quickImageConvert" disabled>Convert to PDF <i class="fa-solid fa-arrow-right"></i></button>
+      </div>
     </div>
   </div>
-  <div class="tools-grid">
+    <div class="tools-grid">
     <button class="tool-card reveal" data-tool="merge"><span class="tool-icon purple"><i class="fa-solid fa-object-group"></i></span><strong>Merge PDF</strong><small>Combine multiple PDFs into one document.</small><span class="tool-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></span></button>
     <button class="tool-card reveal" data-tool="split"><span class="tool-icon blue"><i class="fa-solid fa-scissors"></i></span><strong>Split PDF</strong><small>Separate pages into individual files.</small><span class="tool-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></span></button>
     <button class="tool-card reveal" data-tool="compress"><span class="tool-icon green"><i class="fa-solid fa-compress"></i></span><strong>Compress PDF</strong><small>Apply basic PDF optimization. Results vary by file.</small><span class="tool-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></span></button>
