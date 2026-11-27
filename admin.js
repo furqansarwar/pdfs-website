@@ -10,10 +10,10 @@ const notice = $("#notice");
 let currentUser = null, currentView = "overview";
 
 const config = {
-  content: { title:"Website Content", table:"content_sections", columns:["title","slug","body","is_published"], labels:["Title","Slug","Body","Published"] },
-  tools: { title:"PDF Tools", table:"tools", columns:["name","slug","description","category","is_enabled"], labels:["Tool","Slug","Description","Category","Enabled"] },
-  faqs: { title:"FAQs", table:"faqs", columns:["question","answer","is_published"], labels:["Question","Answer","Published"] },
-  banners: { title:"Banners", table:"banners", columns:["title","message","cta_label","cta_url","image_url","is_enabled"], labels:["Title","Message","Button label","Button URL","Image URL","Enabled"] },
+  content: { title:"Website Content", table:"content_sections", columns:["title","slug","body","sort_order","is_published"], labels:["Title","Slug","Body","Sort order","Published"] },
+  tools: { title:"PDF Tools", table:"tools", columns:["name","slug","description","category","sort_order","is_enabled","config"], labels:["Tool","Slug","Description","Category","Sort order","Enabled","Configuration (JSON)"] },
+  faqs: { title:"FAQs", table:"faqs", columns:["question","answer","sort_order","is_published"], labels:["Question","Answer","Sort order","Published"] },
+  banners: { title:"Banners", table:"banners", columns:["title","message","cta_label","cta_url","image_url","starts_at","ends_at","is_enabled"], labels:["Title","Message","Button label","Button URL","Image URL","Start time","End time","Enabled"] },
   settings: { title:"Site Settings", table:"site_settings", columns:["setting_key","setting_value","is_public"], labels:["Setting","Value","Public"] },
   ads: { title:"Ad Management", table:"ad_slots", columns:["placement","ad_code","is_enabled"], labels:["Placement","Ad code","Enabled"] },
   analytics: { title:"Analytics", table:"analytics_events", columns:["event_type","page_path","tool_slug","created_at"], labels:["Event","Page","Tool","Date"] },
@@ -100,54 +100,76 @@ async function renderOverview() {
     </div>`;
   viewRoot.querySelectorAll("[data-jump]").forEach(b=>b.addEventListener("click",()=>selectView(b.dataset.jump)));
 }
+function fieldMarkup(col,label,value) {
+  const bools=["is_enabled","is_published","is_public"];
+  const jsons=["setting_value","config"];
+  const longText=["body","answer","message","ad_code"];
+  const dateFields=["starts_at","ends_at"];
+  const numeric=["sort_order"];
+  const val=value==null?"":(typeof value==="object"?JSON.stringify(value,null,2):String(value));
+  if(bools.includes(col)) return '<div class="form-field"><label>'+esc(label)+'</label><select name="'+col+'"><option value="true" '+(value===true?'selected':'')+'>Enabled / Yes</option><option value="false" '+(value!==true?'selected':'')+'>Disabled / No</option></select></div>';
+  if(jsons.includes(col)) return '<div class="form-field full"><label>'+esc(label)+'</label><textarea name="'+col+'" spellcheck="false">'+esc(val||"{}")+'</textarea><small class="hint">Enter valid JSON. Example: {"featured": true}</small></div>';
+  if(longText.includes(col)) return '<div class="form-field full"><label>'+esc(label)+'</label><textarea name="'+col+'">'+esc(val)+'</textarea></div>';
+  if(dateFields.includes(col)) {
+    const dateVal=value?new Date(value).toISOString().slice(0,16):"";
+    return '<div class="form-field"><label>'+esc(label)+'</label><input type="datetime-local" name="'+col+'" value="'+esc(dateVal)+'"></div>';
+  }
+  if(numeric.includes(col)) return '<div class="form-field"><label>'+esc(label)+'</label><input type="number" step="1" name="'+col+'" value="'+esc(val||"0")+'"></div>';
+  const type=(col==="image_url"||col==="cta_url")?"url":"text";
+  return '<div class="form-field"><label>'+esc(label)+'</label><input type="'+type+'" name="'+col+'" value="'+esc(val)+'" '+(["title","slug","name","question","placement","setting_key"].includes(col)?'required':'')+'></div>';
+}
 async function renderTable(view) {
   const c=config[view];
-  const {data,error}=await supabase.from(c.table).select("*").limit(100);
+  const {data,error}=await supabase.from(c.table).select("*").order(view==="settings"?"setting_key":(view==="analytics"||view==="activity"?"created_at":"updated_at"),{ascending:false}).limit(200);
   if(error) throw error;
-  const rows=data||[];
+  const rows=data||[], readOnly=view==="analytics"||view==="activity";
   const head=c.labels.map(x=>'<th>'+esc(x)+'</th>').join("");
-  const body=rows.map(row=>'<tr>'+c.columns.map(col=>'<td>'+pretty(row[col])+'</td>').join("")+'<td><div class="row-actions"><button data-edit="'+esc(row.id||row.setting_key)+'">Edit</button><button class="danger" data-delete="'+esc(row.id||row.setting_key)+'">Delete</button></div></td></tr>').join("");
-  viewRoot.innerHTML=`<div class="table-panel"><div class="table-head"><div><h2>${esc(c.title)}</h2><p>Manage ${esc(c.title.toLowerCase())} stored in your PDFS database.</p></div><div class="table-actions"><button class="small-btn" id="refreshRows">Refresh</button><button class="small-btn primary" id="addRow">+ Add new</button></div></div><div class="data-wrap"><table><thead><tr>${head}<th>Actions</th></tr></thead><tbody>${body}</tbody></table>${rows.length?'':'<div class="empty-state">No records yet. Add your first item to get started.</div>'}</div></div>`;
+  const body=rows.map(row=>{
+    const key=row.id??row.setting_key;
+    const actions=readOnly?'':'<td><div class="row-actions"><button data-edit="'+esc(key)+'">Edit</button><button class="danger" data-delete="'+esc(key)+'">Delete</button></div></td>';
+    return '<tr>'+c.columns.map(col=>'<td>'+pretty(row[col])+'</td>').join("")+actions+'</tr>';
+  }).join("");
+  viewRoot.innerHTML='<div class="table-panel"><div class="table-head"><div><h2>'+esc(c.title)+'</h2><p>'+ (readOnly?'System-generated records. These entries are read-only.':'Create, edit and manage records stored in your PDFS database.')+'</p></div><div class="table-actions"><input id="tableSearch" class="table-search" type="search" placeholder="Search records…"><button class="small-btn" id="refreshRows">Refresh</button>'+(readOnly?'':'<button class="small-btn primary" id="addRow">+ Add new</button>')+'</div></div><div class="data-wrap"><table><thead><tr>'+head+(readOnly?'':'<th>Actions</th>')+'</tr></thead><tbody id="tableBody">'+body+'</tbody></table>'+(rows.length?'':'<div class="empty-state">No records yet. Add your first item to get started.</div>')+'</div></div><div id="recordEditor" class="editor-backdrop" hidden><div class="editor-card"><div class="editor-heading"><div><span class="eyebrow">PDFS CONTENT MANAGER</span><h2 id="editorTitle">Add record</h2><p>Changes are saved securely to your database.</p></div><button type="button" class="editor-close" id="closeEditor" aria-label="Close">×</button></div><form id="recordForm"><div class="form-grid" id="recordFields"></div><div class="form-actions"><button type="button" class="small-btn" id="cancelEditor">Cancel</button><button type="submit" class="small-btn primary" id="saveRecord">Save changes</button></div></form></div></div>';
   $("#refreshRows").addEventListener("click",()=>renderView(view));
-  $("#addRow").addEventListener("click",()=>addRecord(view));
-  viewRoot.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>editRecord(view,b.dataset.edit,rows)));
+  const search=$("#tableSearch");
+  search.addEventListener("input",()=>{const q=search.value.toLowerCase();viewRoot.querySelectorAll("#tableBody tr").forEach(tr=>tr.hidden=!tr.textContent.toLowerCase().includes(q));});
+  if(!readOnly) $("#addRow").addEventListener("click",()=>openEditor(view,null,rows));
+  viewRoot.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>openEditor(view,b.dataset.edit,rows)));
   viewRoot.querySelectorAll("[data-delete]").forEach(b=>b.addEventListener("click",()=>deleteRecord(view,b.dataset.delete)));
 }
-async function addRecord(view) {
-  const c=config[view]; let record={};
-  for(let i=0;i<c.columns.length;i++){
-    const col=c.columns[i]; if(["created_at","updated_at","actor_id"].includes(col)) continue;
-    let val=window.prompt("Enter "+c.labels[i]+":"); if(val===null)return;
-    if(["is_enabled","is_published","is_public"].includes(col)) val=/^(true|yes|1|on)$/i.test(val);
-    if(col==="setting_value"||col==="config"){try{val=JSON.parse(val||"{}")}catch{showNotice("Enter valid JSON for "+col,"error");return}}
-    record[col]=val;
-  }
-  if(view==="activity"||view==="analytics"){showNotice("This section is generated by system events; records cannot be added manually.","error");return}
-  if(view==="ads") record.ad_code="";
-  if(view==="settings") record.updated_by=currentUser.id;
-  if(view==="content"||view==="faqs"||view==="tools"||view==="banners"||view==="ads") record.updated_by=currentUser.id;
-  const {error}=await supabase.from(c.table).insert(record);
-  if(error){showNotice(error.message,"error");return}
-  await supabase.from("activity_logs").insert({actor_id:currentUser.id,action:"create",entity:c.table,details:record});
-  showNotice("New record added."); await renderView(view);
-}
-async function editRecord(view,key,rows){
-  const c=config[view], row=rows.find(x=>String(x.id||x.setting_key)===String(key)); if(!row)return;
-  const changes={};
-  for(let i=0;i<c.columns.length;i++){
-    const col=c.columns[i]; if(["created_at","updated_at","actor_id"].includes(col))continue;
-    const old=row[col]; const val=window.prompt("Update "+c.labels[i]+":",typeof old==="object"?JSON.stringify(old):String(old??""));
-    if(val===null)return;
-    if(["is_enabled","is_published","is_public"].includes(col)) changes[col]=/^(true|yes|1|on)$/i.test(val);
-    else if(col==="setting_value"||col==="config"){try{changes[col]=JSON.parse(val||"{}")}catch{showNotice("Enter valid JSON.","error");return}}
-    else changes[col]=val;
-  }
-  changes.updated_at=new Date().toISOString(); changes.updated_by=currentUser.id;
-  const idCol=view==="settings"?"setting_key":"id";
-  const {error}=await supabase.from(c.table).update(changes).eq(idCol,key);
-  if(error){showNotice(error.message,"error");return}
-  await supabase.from("activity_logs").insert({actor_id:currentUser.id,action:"update",entity:c.table,entity_id:String(key)});
-  showNotice("Changes saved."); await renderView(view);
+function openEditor(view,key,rows){
+  const c=config[view], row=key===null?{}:rows.find(x=>String(x.id??x.setting_key)===String(key));
+  if(!row)return;
+  const editor=$("#recordEditor"), form=$("#recordForm");
+  $("#editorTitle").textContent=key===null?"Add "+c.title.slice(0,-1):"Edit "+c.title.slice(0,-1);
+  $("#recordFields").innerHTML=c.columns.map((col,i)=>fieldMarkup(col,c.labels[i],row[col])).join("");
+  editor.hidden=false;
+  $("#closeEditor").onclick=$("#cancelEditor").onclick=()=>{editor.hidden=true;};
+  form.onsubmit=async e=>{
+    e.preventDefault();
+    const button=$("#saveRecord");button.disabled=true;button.textContent="Saving…";
+    try{
+      const payload={};
+      for(const col of c.columns){
+        const input=form.elements.namedItem(col);if(!input)continue;
+        let value=input.value;
+        if(["is_enabled","is_published","is_public"].includes(col))value=value==="true";
+        else if(["sort_order"].includes(col)){value=Number(value||0);if(!Number.isFinite(value))throw new Error("Sort order must be a number.");}
+        else if(["setting_value","config"].includes(col)){try{value=JSON.parse(value||"{}");}catch{throw new Error("Please enter valid JSON in "+col+".");}}
+        else if(["starts_at","ends_at"].includes(col)){value=value?new Date(value).toISOString():null;}
+        else if(value==="")value=null;
+        payload[col]=value;
+      }
+      payload.updated_at=new Date().toISOString();payload.updated_by=currentUser.id;
+      if(view==="settings"&&key!==null)delete payload.setting_key;
+      let query=supabase.from(c.table);
+      const result=key===null?await query.insert(payload):await query.update(payload).eq(view==="settings"?"setting_key":"id",key);
+      if(result.error)throw result.error;
+      await supabase.from("activity_logs").insert({actor_id:currentUser.id,action:key===null?"create":"update",entity:c.table,entity_id:key===null?null:String(key),details:payload});
+      editor.hidden=true;showNotice(key===null?"Record created successfully.":"Changes saved successfully.");await renderView(view);
+    }catch(error){showNotice(error.message||"Unable to save record.","error");}
+    finally{button.disabled=false;button.textContent="Save changes";}
+  };
 }
 async function deleteRecord(view,key){
   if(!confirm("Delete this record? This cannot be undone."))return;
@@ -155,7 +177,7 @@ async function deleteRecord(view,key){
   const {error}=await supabase.from(c.table).delete().eq(idCol,key);
   if(error){showNotice(error.message,"error");return}
   await supabase.from("activity_logs").insert({actor_id:currentUser.id,action:"delete",entity:c.table,entity_id:String(key)});
-  showNotice("Record deleted."); await renderView(view);
+  showNotice("Record deleted.");await renderView(view);
 }
 async function selectView(view){document.querySelectorAll(".nav-item").forEach(x=>x.classList.toggle("active",x.dataset.view===view));await renderView(view)}
 async function renderView(view){
