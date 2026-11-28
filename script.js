@@ -188,7 +188,10 @@ const tools = {
 /* OPEN TOOL */
 
 document.querySelectorAll("[data-tool]").forEach(button => {
-  button.addEventListener("click", () => openTool(button.dataset.tool));
+  button.addEventListener("click", () => {
+    if (button.dataset.tool === "edit") { window.location.href = "./edit-pdf.html"; return; }
+    openTool(button.dataset.tool);
+  });
 });
 
 function openTool(name) {
