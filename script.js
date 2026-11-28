@@ -32,9 +32,9 @@ async function loadPdfToolLibraries(tool) {
     xlsx: "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"
   };
   const tasks = [];
-  if (["merge", "split", "compress", "rotate", "watermark", "unlock"].includes(tool))
+  if (["merge", "split", "compress", "rotate", "watermark", "unlock", "edit"].includes(tool))
     tasks.push(window.pdfsLoadScript(urls.pdfLib, () => !!window.PDFLib));
-  if (["pdf-word", "pdf-jpg", "pdf-excel"].includes(tool))
+  if (["pdf-word", "pdf-jpg", "pdf-excel", "edit"].includes(tool))
     tasks.push(window.pdfsLoadScript(urls.pdfJs, () => !!window.pdfjsLib).then(() => {
       pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
     }));
@@ -116,6 +116,11 @@ if ("IntersectionObserver" in window) {
 /* TOOL INFORMATION */
 
 const tools = {
+  edit: {
+    title: "Edit PDF Text",
+    description: "Find an existing word or phrase and replace it in your PDF.",
+    accept: ".pdf"
+  },
   merge: {
     title: "Merge PDF",
     description: "Combine multiple PDF documents into one file.",
@@ -203,6 +208,20 @@ function openTool(name) {
   toolOptions.innerHTML = "";
   processBtn.disabled = true;
   processBtn.innerHTML = name === "protect" ? "Protect PDF" : 'Continue <i class="fa-solid fa-arrow-right"></i>';
+
+  if (name === "edit") {
+    toolOptions.innerHTML = `
+      <label for="editFindText">Find text (exact word or phrase)
+        <input type="text" id="editFindText" placeholder="e.g. arslan" autocomplete="off">
+      </label>
+      <label for="editReplaceText">Replace with
+        <input type="text" id="editReplaceText" placeholder="e.g. arsalan" autocomplete="off">
+      </label>
+      <label for="editPageNumber">Page number (leave blank to search all pages)
+        <input type="number" id="editPageNumber" min="1" step="1" placeholder="All pages">
+      </label>
+      <p class="tool-notice" role="note">Works with selectable text on plain/light backgrounds. Scanned PDFs, handwriting and complex layouts may not be editable. Your original stays unchanged; a new edited PDF is downloaded.</p>`;
+  }
 
   if (name === "split") {
     toolOptions.innerHTML = `
@@ -453,8 +472,8 @@ async function processTool() {
     return;
   }
 
-  const needsPdfLib = ["merge", "split", "compress", "rotate", "watermark", "unlock"].includes(activeTool);
-  const needsPdfJs = ["pdf-word", "pdf-jpg", "pdf-excel"].includes(activeTool);
+  const needsPdfLib = ["merge", "split", "compress", "rotate", "watermark", "unlock", "edit"].includes(activeTool);
+  const needsPdfJs = ["pdf-word", "pdf-jpg", "pdf-excel", "edit"].includes(activeTool);
   const needsJsPdf = ["jpg-pdf", "word-pdf"].includes(activeTool);
 
   modalStatus.textContent = "Loading required tool...";
@@ -477,6 +496,53 @@ async function processTool() {
   }
 
   switch (activeTool) {
+
+    /* EDIT PDF TEXT */
+    case "edit": {
+      const findText = $("#editFindText").value.trim();
+      const replaceText = $("#editReplaceText").value;
+      const pageInput = $("#editPageNumber").value.trim();
+      if (!findText) throw new Error("Enter the word or phrase you want to find.");
+      if (!replaceText.trim()) throw new Error("Enter the replacement text.");
+      const requestedPage = pageInput ? Number(pageInput) : null;
+      if (requestedPage !== null && (!Number.isInteger(requestedPage) || requestedPage < 1)) throw new Error("Enter a valid page number.");
+      const data = new Uint8Array(await file.arrayBuffer());
+      const pdf = await pdfjsLib.getDocument({ data }).promise;
+      if (requestedPage && requestedPage > pdf.numPages) throw new Error("That page number is beyond the end of this PDF.");
+      const output = await readPDF(file);
+      const font = await output.embedFont(PDFLib.StandardFonts.Helvetica);
+      let replacements = 0;
+      for (let pageNo = requestedPage || 1; pageNo <= (requestedPage || pdf.numPages); pageNo++) {
+        modalStatus.textContent = `Searching page ${pageNo} of ${pdf.numPages}...`;
+        const page = await pdf.getPage(pageNo);
+        const content = await page.getTextContent();
+        const pdfPage = output.getPage(pageNo - 1);
+        for (const item of content.items) {
+          if (!item.str || !item.str.includes(findText)) continue;
+          const start = item.str.indexOf(findText);
+          const fontHeight = Math.max(6, Math.abs(item.transform[3]) || item.height || 10);
+          const measureCanvas = document.createElement("canvas");
+          const ctx = measureCanvas.getContext("2d");
+          ctx.font = `${fontHeight}px Arial`;
+          const beforeWidth = ctx.measureText(item.str.slice(0, start)).width;
+          const matchWidth = ctx.measureText(findText).width;
+          const totalWidth = ctx.measureText(item.str).width;
+          const scaleX = totalWidth > 0 ? item.width / totalWidth : 1;
+          const x = item.transform[4] + beforeWidth * scaleX;
+          const y = item.transform[5] - fontHeight * 0.28;
+          const width = Math.max(matchWidth * scaleX, fontHeight * 1.2);
+          const height = Math.max(fontHeight * 1.2, item.height || fontHeight);
+          pdfPage.drawRectangle({ x: x - 1, y: y - 1, width: width + 3, height: height + 2, color: PDFLib.rgb(1,1,1), borderWidth: 0 });
+          pdfPage.drawText(replaceText, { x, y: y + Math.max(0, (height - fontHeight) / 2), size: fontHeight, font, color: PDFLib.rgb(0,0,0) });
+          replacements++;
+        }
+      }
+      if (!replacements) throw new Error("No matching selectable text was found. Check spelling. Scanned PDFs are not supported by text search.");
+      const bytes = await output.save();
+      downloadBlob(new Blob([bytes], { type: "application/pdf" }), outputName(file, "-edited"));
+      modalStatus.textContent = `${replacements} replacement(s) made. Your edited PDF is downloading.`;
+      break;
+    }
 
     /* MERGE PDF */
 
