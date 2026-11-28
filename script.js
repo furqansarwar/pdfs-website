@@ -1036,7 +1036,7 @@ console.log("PDFS website initialized successfully.");
       if (description) description.textContent = item.description;
       card.setAttribute("aria-label", item.name + ": " + item.description);
     });
-    const count = data.filter(item => item.is_enabled).length;
+    const count = data.filter(item => item.is_enabled).length + 1; // Edit PDF is a built-in tool, not CMS-managed.
     document.querySelectorAll(".tool-count").forEach(el => el.textContent = count + " AVAILABLE TOOLS");
     document.querySelectorAll(".stats-section .stats-grid > div:first-child strong").forEach(el => el.textContent = count);
     document.querySelectorAll(".cta-highlight-item:first-child .highlight-number").forEach(el => el.textContent = count);
