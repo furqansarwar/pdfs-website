@@ -3832,3 +3832,118 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .floating-file, .hero-document { animation: none !important; }
 }
+
+
+/* ===== PDF TOOL CARDS — PREMIUM COLOUR REFRESH ===== */
+.tools-section > .tools-grid .tool-card {
+  position: relative;
+  isolation: isolate;
+  min-height: 158px;
+  padding: 19px 18px 17px;
+  overflow: hidden;
+  border: 1px solid #e9e7f5;
+  border-radius: 18px;
+  background: linear-gradient(145deg, #ffffff 0%, var(--tool-tint, #f8f6ff) 100%);
+  box-shadow: 0 8px 24px rgba(40, 35, 100, .055);
+  text-align: left;
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+.tools-section > .tools-grid .tool-card::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 112px;
+  height: 112px;
+  right: -42px;
+  top: -48px;
+  border-radius: 50%;
+  background: var(--tool-glow, rgba(104,72,232,.10));
+  transition: transform .25s ease;
+}
+.tools-section > .tools-grid .tool-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--tool-border, #d8cffb);
+  box-shadow: 0 16px 34px var(--tool-shadow, rgba(82,61,170,.13));
+}
+.tools-section > .tools-grid .tool-card:hover::before {
+  transform: scale(1.45);
+}
+.tools-section > .tools-grid .tool-card .tool-icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  margin: 0 0 13px;
+  border-radius: 13px;
+  color: var(--tool-color, #6848e8);
+  background: var(--tool-icon-bg, #eeeaff);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.75), 0 5px 12px rgba(40,35,100,.06);
+  font-size: 17px;
+}
+.tools-section > .tools-grid .tool-card strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #202344;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -.2px;
+}
+.tools-section > .tools-grid .tool-card small {
+  display: block;
+  max-width: 230px;
+  color: #70758c;
+  font-size: 11px;
+  line-height: 1.55;
+}
+.tools-section > .tools-grid .tool-card .tool-arrow {
+  position: absolute;
+  right: 15px;
+  bottom: 14px;
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  color: var(--tool-color, #6848e8);
+  background: var(--tool-icon-bg, #eeeaff);
+  font-size: 10px;
+  transition: transform .22s ease, background .22s ease, color .22s ease;
+}
+.tools-section > .tools-grid .tool-card:hover .tool-arrow {
+  transform: translate(2px, -2px);
+  color: #fff;
+  background: var(--tool-color, #6848e8);
+}
+.tools-section > .tools-grid .tool-card:nth-child(6n+1) {
+  --tool-color:#6948df;--tool-icon-bg:#eee9ff;--tool-tint:#f8f5ff;--tool-glow:rgba(105,72,223,.12);--tool-border:#d9ceff;--tool-shadow:rgba(105,72,223,.14);
+}
+.tools-section > .tools-grid .tool-card:nth-child(6n+2) {
+  --tool-color:#2875d7;--tool-icon-bg:#e7f1ff;--tool-tint:#f3f8ff;--tool-glow:rgba(40,117,215,.12);--tool-border:#c9e0ff;--tool-shadow:rgba(40,117,215,.13);
+}
+.tools-section > .tools-grid .tool-card:nth-child(6n+3) {
+  --tool-color:#159b70;--tool-icon-bg:#e3f8ef;--tool-tint:#f1fbf6;--tool-glow:rgba(21,155,112,.12);--tool-border:#c5edda;--tool-shadow:rgba(21,155,112,.13);
+}
+.tools-section > .tools-grid .tool-card:nth-child(6n+4) {
+  --tool-color:#e47a25;--tool-icon-bg:#fff0df;--tool-tint:#fff8ef;--tool-glow:rgba(228,122,37,.13);--tool-border:#f8dfc3;--tool-shadow:rgba(228,122,37,.13);
+}
+.tools-section > .tools-grid .tool-card:nth-child(6n+5) {
+  --tool-color:#087f9e;--tool-icon-bg:#e1f6fb;--tool-tint:#f0fbfd;--tool-glow:rgba(8,127,158,.12);--tool-border:#c5eaf1;--tool-shadow:rgba(8,127,158,.13);
+}
+.tools-section > .tools-grid .tool-card:nth-child(6n) {
+  --tool-color:#d34d8c;--tool-icon-bg:#ffebf4;--tool-tint:#fff5f9;--tool-glow:rgba(211,77,140,.12);--tool-border:#f5d0e2;--tool-shadow:rgba(211,77,140,.13);
+}
+.tools-section > .tools-grid .tool-card:focus-visible {
+  outline: 3px solid rgba(104,72,232,.35);
+  outline-offset: 3px;
+}
+@media (max-width:760px) {
+  .tools-section > .tools-grid .tool-card { min-height: 145px; padding: 15px 13px; border-radius: 15px; }
+  .tools-section > .tools-grid .tool-card .tool-icon { width: 38px; height: 38px; margin-bottom: 10px; }
+  .tools-section > .tools-grid .tool-card strong { font-size: 12px; }
+  .tools-section > .tools-grid .tool-card small { font-size: 10px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .tools-section > .tools-grid .tool-card,
+  .tools-section > .tools-grid .tool-card::before,
+  .tools-section > .tools-grid .tool-card .tool-arrow { transition:none; }
+}
