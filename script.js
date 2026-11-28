@@ -497,51 +497,102 @@ async function processTool() {
 
   switch (activeTool) {
 
-    /* EDIT PDF TEXT */
+    /* EDIT PDF — VISUAL PAGE REPLACEMENT */
     case "edit": {
-      const findText = $("#editFindText").value.trim();
+      const findText = $("#editFindText").value;
       const replaceText = $("#editReplaceText").value;
       const pageInput = $("#editPageNumber").value.trim();
-      if (!findText) throw new Error("Enter the word or phrase you want to find.");
-      if (!replaceText.trim()) throw new Error("Enter the replacement text.");
+      if (!findText) throw new Error("Enter the existing name or text exactly as it appears.");
+      if (!replaceText.trim()) throw new Error("Enter the corrected name or text.");
       const requestedPage = pageInput ? Number(pageInput) : null;
       if (requestedPage !== null && (!Number.isInteger(requestedPage) || requestedPage < 1)) throw new Error("Enter a valid page number.");
+
       const data = new Uint8Array(await file.arrayBuffer());
-      const pdf = await pdfjsLib.getDocument({ data }).promise;
-      if (requestedPage && requestedPage > pdf.numPages) throw new Error("That page number is beyond the end of this PDF.");
-      const output = await readPDF(file);
-      const font = await output.embedFont(PDFLib.StandardFonts.Helvetica);
+      const sourcePdf = await pdfjsLib.getDocument({ data }).promise;
+      if (requestedPage && requestedPage > sourcePdf.numPages) throw new Error("That page number is beyond the end of this PDF.");
+      const output = await PDFLib.PDFDocument.create();
+      const sourceLayout = await readPDF(file);
       let replacements = 0;
-      for (let pageNo = requestedPage || 1; pageNo <= (requestedPage || pdf.numPages); pageNo++) {
-        modalStatus.textContent = `Searching page ${pageNo} of ${pdf.numPages}...`;
-        const page = await pdf.getPage(pageNo);
-        const content = await page.getTextContent();
-        const pdfPage = output.getPage(pageNo - 1);
-        for (const item of content.items) {
-          if (!item.str || !item.str.includes(findText)) continue;
-          const start = item.str.indexOf(findText);
-          const fontHeight = Math.max(6, Math.abs(item.transform[3]) || item.height || 10);
-          const measureCanvas = document.createElement("canvas");
-          const ctx = measureCanvas.getContext("2d");
-          ctx.font = `${fontHeight}px Arial`;
-          const beforeWidth = ctx.measureText(item.str.slice(0, start)).width;
-          const matchWidth = ctx.measureText(findText).width;
-          const replacementWidth = ctx.measureText(replaceText).width;
-          const totalWidth = ctx.measureText(item.str).width;
-          const scaleX = totalWidth > 0 ? item.width / totalWidth : 1;
-          const x = item.transform[4] + beforeWidth * scaleX;
-          const y = item.transform[5] - fontHeight * 0.28;
-          const width = Math.max(matchWidth, replacementWidth) * scaleX + 2;
-          const height = Math.max(fontHeight * 1.2, item.height || fontHeight);
-          pdfPage.drawRectangle({ x: x - 1, y: y - 1, width: width + 3, height: height + 2, color: PDFLib.rgb(1,1,1), borderWidth: 0 });
-          pdfPage.drawText(replaceText, { x, y: y + Math.max(0, (height - fontHeight) / 2), size: fontHeight, font, color: PDFLib.rgb(0,0,0) });
-          replacements++;
+      const firstPage = requestedPage || 1;
+      const lastPage = requestedPage || sourcePdf.numPages;
+
+      for (let pageNo = firstPage; pageNo <= lastPage; pageNo++) {
+        modalStatus.textContent = `Opening page ${pageNo} of ${sourcePdf.numPages}...`;
+        const page = await sourcePdf.getPage(pageNo);
+        const scale = 2;
+        const viewport = page.getViewport({ scale });
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.ceil(viewport.width);
+        canvas.height = Math.ceil(viewport.height);
+        const ctx = canvas.getContext("2d", { willReadFrequently: true });
+        await page.render({ canvasContext: ctx, viewport }).promise;
+
+        const textContent = await page.getTextContent();
+        for (const item of textContent.items) {
+          if (!item.str) continue;
+          let from = 0;
+          while (true) {
+            const foundAt = item.str.indexOf(findText, from);
+            if (foundAt < 0) break;
+            const style = textContent.styles[item.fontName] || {};
+            const baseFont = Math.max(7, Math.abs(item.transform[3]) || item.height || 10);
+            const fontPx = baseFont * scale;
+            const family = style.fontFamily || "Arial";
+            const bold = /bold|black|heavy/i.test(item.fontName + " " + family);
+            const italic = /italic|oblique/i.test(item.fontName + " " + family);
+            ctx.save();
+            ctx.font = `${italic ? "italic " : ""}${bold ? "bold " : ""}${fontPx}px "${family}", Arial, sans-serif`;
+            const beforeWidth = ctx.measureText(item.str.slice(0, foundAt)).width;
+            const oldWidth = ctx.measureText(findText).width;
+            const newWidth = ctx.measureText(replaceText).width;
+            const textScale = item.width > 0 ? (item.width * scale) / Math.max(ctx.measureText(item.str).width, 1) : 1;
+            const point = viewport.convertToViewportPoint(item.transform[4], item.transform[5]);
+            const x = point[0] + beforeWidth * textScale;
+            const baseline = point[1];
+            const patchWidth = Math.max(oldWidth, newWidth) * textScale + 6;
+            const patchHeight = Math.max(fontPx * 1.35, (item.height || baseFont) * scale * 1.35);
+            const top = Math.max(0, Math.floor(baseline - fontPx * 1.05));
+            const left = Math.max(0, Math.floor(x - 2));
+            const right = Math.min(canvas.width - 1, Math.ceil(left + patchWidth));
+            const bottom = Math.min(canvas.height - 1, Math.ceil(top + patchHeight));
+
+            // Match the surrounding page colour instead of placing a fixed white box.
+            const samplePoints = [
+              [Math.max(0,left-3), Math.max(0,top-2)],
+              [Math.min(canvas.width-1,right+3), Math.max(0,top-2)],
+              [Math.max(0,left-3), Math.min(canvas.height-1,bottom+2)],
+              [Math.min(canvas.width-1,right+3), Math.min(canvas.height-1,bottom+2)]
+            ];
+            const samples = samplePoints.map(([sx,sy]) => Array.from(ctx.getImageData(sx,sy,1,1).data).slice(0,3));
+            const bg = [0,1,2].map(channel => Math.round(samples.reduce((sum,p) => sum+p[channel],0)/samples.length));
+            ctx.fillStyle = `rgb(${bg[0]}, ${bg[1]}, ${bg[2]})`;
+            ctx.fillRect(left, top, Math.max(1,right-left), Math.max(1,bottom-top));
+            ctx.font = `${italic ? "italic " : ""}${bold ? "bold " : ""}${fontPx}px "${family}", Arial, sans-serif`;
+            ctx.textBaseline = "alphabetic";
+            ctx.fillStyle = "rgb(20,20,20)";
+            ctx.fillText(replaceText, x, baseline, Math.max(1, patchWidth - 4));
+            ctx.restore();
+            replacements++;
+            from = foundAt + findText.length;
+          }
         }
+
+        const png = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+        if (!png) throw new Error("Could not prepare the edited page image.");
+        const imageBytes = new Uint8Array(await png.arrayBuffer());
+        const embedded = await output.embedPng(imageBytes);
+        const originalPage = sourceLayout.getPage(pageNo - 1);
+        const pageSize = originalPage.getSize();
+        const outPage = output.addPage([pageSize.width, pageSize.height]);
+        outPage.drawImage(embedded, { x: 0, y: 0, width: pageSize.width, height: pageSize.height });
+        canvas.width = 0;
+        canvas.height = 0;
       }
-      if (!replacements) throw new Error("No matching selectable text was found. Check spelling. Scanned PDFs are not supported by text search.");
+
+      if (!replacements) throw new Error("No exact match was found in the selected page(s). Check the spelling. Scanned/handwritten text cannot be searched automatically.");
       const bytes = await output.save();
       downloadBlob(new Blob([bytes], { type: "application/pdf" }), outputName(file, "-edited"));
-      modalStatus.textContent = `${replacements} replacement(s) made. Your edited PDF is downloading.`;
+      modalStatus.textContent = `${replacements} correction(s) applied directly on the page. Your edited PDF is downloading.`;
       break;
     }
 
