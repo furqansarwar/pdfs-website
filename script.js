@@ -1080,11 +1080,6 @@ console.log("PDFS website initialized successfully.");
     }
   };
 
-  loadTools();
-  loadFeaturedImageTool();
-  loadFaqs();
-  loadBanners();
-  loadCustomSections();
   // Load CMS content after the initial page has rendered.
   const loadCmsContent = () => {
     loadTools();
