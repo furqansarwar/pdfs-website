@@ -4,6 +4,49 @@
    Navigation, animations and PDF tools
 ========================================== */
 
+/* Load large tool libraries only when a visitor uses that tool. */
+const pdfsScriptPromises = new Map();
+window.pdfsLoadScript = function (url, readyCheck) {
+  if (readyCheck && readyCheck()) return Promise.resolve();
+  if (pdfsScriptPromises.has(url)) return pdfsScriptPromises.get(url);
+  const promise = new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = url;
+    script.async = true;
+    script.onload = () => readyCheck && !readyCheck()
+      ? reject(new Error("A required library did not initialize."))
+      : resolve();
+    script.onerror = () => reject(new Error("A required library could not be downloaded."));
+    document.head.appendChild(script);
+  });
+  pdfsScriptPromises.set(url, promise);
+  return promise;
+};
+
+async function loadPdfToolLibraries(tool) {
+  const urls = {
+    pdfLib: "https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js",
+    pdfJs: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js",
+    jsPdf: "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",
+    mammoth: "https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js",
+    xlsx: "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"
+  };
+  const tasks = [];
+  if (["merge", "split", "compress", "rotate", "watermark", "unlock"].includes(tool))
+    tasks.push(window.pdfsLoadScript(urls.pdfLib, () => !!window.PDFLib));
+  if (["pdf-word", "pdf-jpg", "pdf-excel"].includes(tool))
+    tasks.push(window.pdfsLoadScript(urls.pdfJs, () => !!window.pdfjsLib).then(() => {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    }));
+  if (["jpg-pdf", "word-pdf"].includes(tool))
+    tasks.push(window.pdfsLoadScript(urls.jsPdf, () => !!window.jspdf));
+  if (tool === "word-pdf")
+    tasks.push(window.pdfsLoadScript(urls.mammoth, () => !!window.mammoth));
+  if (tool === "pdf-excel")
+    tasks.push(window.pdfsLoadScript(urls.xlsx, () => !!window.XLSX));
+  await Promise.all(tasks);
+}
+
 const $ = (selector) => document.querySelector(selector);
 
 const menuToggle = $("#menuToggle");
@@ -413,6 +456,9 @@ async function processTool() {
   const needsPdfLib = ["merge", "split", "compress", "rotate", "watermark", "unlock"].includes(activeTool);
   const needsPdfJs = ["pdf-word", "pdf-jpg", "pdf-excel"].includes(activeTool);
   const needsJsPdf = ["jpg-pdf", "word-pdf"].includes(activeTool);
+
+  modalStatus.textContent = "Loading required tool...";
+  await loadPdfToolLibraries(activeTool);
 
   if (needsPdfLib && !window.PDFLib) {
     throw new Error("The PDF editing library could not load. Check your connection and refresh the page.");
@@ -863,8 +909,10 @@ console.log("PDFS website initialized successfully.");
 
   convert.addEventListener("click", async () => {
     if (!images.length) return;
-    if (!window.jspdf?.jsPDF) { status.textContent = "PDF library could not load. Refresh and try again."; return; }
-    convert.disabled = true; choose.disabled = true; status.textContent = "Creating your PDF...";
+    convert.disabled = true; choose.disabled = true; status.textContent = "Loading PDF engine...";
+    try {
+      await loadPdfToolLibraries("jpg-pdf");
+      status.textContent = "Creating your PDF...";
     try {
       const { jsPDF } = window.jspdf;
       let pdf;
@@ -892,10 +940,15 @@ console.log("PDFS website initialized successfully.");
    Public content is read through RLS-protected
    Supabase tables. File processing stays local.
 ========================================== */
-(() => {
+(async () => {
   const SUPABASE_URL = "https://ifbhikajorxrslvnxmjx.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_GZuBTRceNBx0sYIb4M4FOQ_ksWzxrq7";
-  if (!window.supabase?.createClient) return;
+  try {
+    await window.pdfsLoadScript("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2", () => !!window.supabase?.createClient);
+  } catch (error) {
+    console.warn("Live site content is temporarily unavailable.", error);
+    return;
+  }
   const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
   const loadTools = async () => {
@@ -1033,7 +1086,17 @@ console.log("PDFS website initialized successfully.");
   loadFaqs();
   loadBanners();
   loadCustomSections();
-  loadSettings();
+  // Load CMS content after the initial page has rendered.
+  const loadCmsContent = () => {
+    loadTools();
+    loadFeaturedImageTool();
+    loadFaqs();
+    loadBanners();
+    loadCustomSections();
+    loadSettings();
+  };
+  if ("requestIdleCallback" in window) requestIdleCallback(loadCmsContent, { timeout: 2500 });
+  else setTimeout(loadCmsContent, 1200);
 
 })();
 
