@@ -3999,3 +3999,28 @@ body {
   .tools-section > .tools-grid .tool-card .tool-icon { width:44px;height:44px; }
   .tools-section > .tools-grid .tool-card .tool-icon i { font-size:23px; }
 }
+
+
+/* EDIT PDF — clear, accessible replacement controls */
+#toolOptions .tool-notice {
+  margin: 13px 0 4px;
+  padding: 12px 14px;
+  border: 1px solid #e5ddff;
+  border-radius: 11px;
+  background: #f7f4ff;
+  color: #68617f;
+  font-size: 11px;
+  line-height: 1.65;
+}
+#toolOptions input[type="number"] {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 12px;
+  margin-top: 8px;
+  outline: none;
+}
+#toolOptions input:focus {
+  border-color: #8b70ed;
+  box-shadow: 0 0 0 3px rgba(139,112,237,.12);
+}
