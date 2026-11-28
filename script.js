@@ -526,11 +526,12 @@ async function processTool() {
           ctx.font = `${fontHeight}px Arial`;
           const beforeWidth = ctx.measureText(item.str.slice(0, start)).width;
           const matchWidth = ctx.measureText(findText).width;
+          const replacementWidth = ctx.measureText(replaceText).width;
           const totalWidth = ctx.measureText(item.str).width;
           const scaleX = totalWidth > 0 ? item.width / totalWidth : 1;
           const x = item.transform[4] + beforeWidth * scaleX;
           const y = item.transform[5] - fontHeight * 0.28;
-          const width = Math.max(matchWidth * scaleX, fontHeight * 1.2);
+          const width = Math.max(matchWidth, replacementWidth) * scaleX + 2;
           const height = Math.max(fontHeight * 1.2, item.height || fontHeight);
           pdfPage.drawRectangle({ x: x - 1, y: y - 1, width: width + 3, height: height + 2, color: PDFLib.rgb(1,1,1), borderWidth: 0 });
           pdfPage.drawText(replaceText, { x, y: y + Math.max(0, (height - fontHeight) / 2), size: fontHeight, font, color: PDFLib.rgb(0,0,0) });
