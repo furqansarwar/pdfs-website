@@ -299,10 +299,146 @@ document.addEventListener("keydown", event => {
   }
 });
 
+
+/* VISUAL PDF PAGE EDITOR */
+let visualPdfFile = null;
+let visualPdfDoc = null;
+let visualPdfPage = 1;
+let visualPdfScale = 1.35;
+let visualPdfDirty = false;
+
+async function launchVisualPdfEditor(file) {
+  visualPdfFile = file;
+  modal.classList.remove("open");
+  modal.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "";
+  let editor = document.getElementById("visualPdfEditor");
+  if (!editor) {
+    editor = document.createElement("section");
+    editor.id = "visualPdfEditor";
+    editor.className = "visual-pdf-editor";
+    editor.innerHTML = `
+      <header class="vpe-toolbar">
+        <button type="button" class="vpe-back" id="vpeBack"><i class="fa-solid fa-arrow-left"></i> Back</button>
+        <strong id="vpeFilename">PDF Editor</strong>
+        <div class="vpe-actions">
+          <button type="button" id="vpeAddText"><i class="fa-solid fa-font"></i> Add text</button>
+          <button type="button" class="vpe-save" id="vpeSave"><i class="fa-solid fa-download"></i> Save PDF</button>
+        </div>
+      </header>
+      <div class="vpe-help">Click existing text on the page to edit it. Use “Add text” to place new text anywhere. Changes are made on the page itself.</div>
+      <main class="vpe-workspace">
+        <aside class="vpe-pages">
+          <button type="button" id="vpePrev">Previous</button>
+          <span id="vpePageCount">Page 1</span>
+          <button type="button" id="vpeNext">Next</button>
+        </aside>
+        <div class="vpe-canvas-wrap"><div class="vpe-page" id="vpePage">
+          <canvas id="vpeCanvas"></canvas><div id="vpeTextLayer" class="vpe-text-layer"></div>
+        </div></div>
+      </main>
+      <div class="vpe-status" id="vpeStatus" role="status">Loading PDF...</div>`;
+    document.body.appendChild(editor);
+    document.getElementById("vpeBack").addEventListener("click", () => { editor.classList.remove("active"); document.body.style.overflow = ""; });
+    document.getElementById("vpePrev").addEventListener("click", () => renderVisualPdfPage(Math.max(1, visualPdfPage - 1)));
+    document.getElementById("vpeNext").addEventListener("click", () => renderVisualPdfPage(Math.min(visualPdfDoc.numPages, visualPdfPage + 1)));
+    document.getElementById("vpeAddText").addEventListener("click", () => {
+      const layer = document.getElementById("vpeTextLayer");
+      const node = document.createElement("div");
+      node.className = "vpe-added-text";
+      node.contentEditable = "true";
+      node.textContent = "Type here";
+      node.style.left = "18%"; node.style.top = "18%";
+      node.style.fontSize = "18px";
+      layer.appendChild(node);
+      node.focus();
+      const range = document.createRange(); range.selectNodeContents(node);
+      const selection = window.getSelection(); selection.removeAllRanges(); selection.addRange(range);
+      visualPdfDirty = true;
+    });
+    document.getElementById("vpeSave").addEventListener("click", saveVisualPdf);
+  }
+  editor.classList.add("active");
+  document.body.style.overflow = "hidden";
+  document.getElementById("vpeFilename").textContent = file.name;
+  try {
+    await loadPdfToolLibraries("edit");
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    visualPdfDoc = await pdfjsLib.getDocument({ data: bytes }).promise;
+    visualPdfPage = 1; visualPdfDirty = false;
+    await renderVisualPdfPage(1);
+  } catch (error) {
+    document.getElementById("vpeStatus").textContent = error.message || "Could not open this PDF.";
+  }
+}
+
+async function renderVisualPdfPage(pageNo) {
+  visualPdfPage = pageNo;
+  const page = await visualPdfDoc.getPage(pageNo);
+  const viewport = page.getViewport({ scale: visualPdfScale });
+  const canvas = document.getElementById("vpeCanvas");
+  const ctx = canvas.getContext("2d");
+  canvas.width = Math.ceil(viewport.width); canvas.height = Math.ceil(viewport.height);
+  canvas.style.width = viewport.width + "px"; canvas.style.height = viewport.height + "px";
+  const layer = document.getElementById("vpeTextLayer");
+  layer.innerHTML = ""; layer.style.width = viewport.width + "px"; layer.style.height = viewport.height + "px";
+  await page.render({ canvasContext: ctx, viewport }).promise;
+  const textContent = await page.getTextContent();
+  if (pdfjsLib.renderTextLayer) {
+    const task = pdfjsLib.renderTextLayer({ textContent, container: layer, viewport, textDivs: [] });
+    if (task.promise) await task.promise;
+  }
+  layer.querySelectorAll("span").forEach(span => {
+    span.contentEditable = "true";
+    span.spellcheck = false;
+    span.addEventListener("input", () => { visualPdfDirty = true; });
+    span.title = "Click and edit this text";
+  });
+  layer.querySelectorAll("div").forEach(div => { if (div.textContent.trim()) { div.contentEditable = "true"; div.addEventListener("input", () => visualPdfDirty = true); }});
+  document.getElementById("vpePageCount").textContent = "Page " + pageNo + " of " + visualPdfDoc.numPages;
+  document.getElementById("vpeStatus").textContent = "Edit text directly on the page, then select Save PDF.";
+}
+
+async function saveVisualPdf() {
+  const button = document.getElementById("vpeSave");
+  const status = document.getElementById("vpeStatus");
+  button.disabled = true; status.textContent = "Preparing edited PDF pages...";
+  try {
+    if (!window.html2canvas) {
+      await new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+        script.onload = resolve; script.onerror = () => reject(new Error("Could not load PDF export helper."));
+        document.head.appendChild(script);
+      });
+    }
+    const output = await PDFLib.PDFDocument.create();
+    for (let pageNo = 1; pageNo <= visualPdfDoc.numPages; pageNo++) {
+      status.textContent = "Saving page " + pageNo + " of " + visualPdfDoc.numPages + "...";
+      await renderVisualPdfPage(pageNo);
+      const pageNode = document.getElementById("vpePage");
+      const snapshot = await html2canvas(pageNode, { backgroundColor: "#ffffff", scale: 2, useCORS: true });
+      const png = await new Promise(resolve => snapshot.toBlob(resolve, "image/png"));
+      if (!png) throw new Error("Could not render page " + pageNo);
+      const image = await output.embedPng(new Uint8Array(await png.arrayBuffer()));
+      const sourcePage = await visualPdfDoc.getPage(pageNo);
+      const originalViewport = sourcePage.getViewport({ scale: 1 });
+      const outPage = output.addPage([originalViewport.width, originalViewport.height]);
+      outPage.drawImage(image, { x: 0, y: 0, width: originalViewport.width, height: originalViewport.height });
+    }
+    const bytes = await output.save();
+    downloadBlob(new Blob([bytes], { type: "application/pdf" }), outputName(visualPdfFile, "-edited"));
+    status.textContent = "Edited PDF saved successfully.";
+  } catch (error) {
+    status.textContent = error.message || "Could not save edited PDF.";
+  } finally { button.disabled = false; }
+}
+
 /* FILE SELECTION */
 
 fileInput.addEventListener("change", () => {
   selectedFiles = Array.from(fileInput.files || []);
+  if (activeTool === "edit" && selectedFiles[0]) { launchVisualPdfEditor(selectedFiles[0]); return; }
 
   if (!selectedFiles.length) {
     processBtn.disabled = true;
