@@ -913,7 +913,6 @@ console.log("PDFS website initialized successfully.");
     try {
       await loadPdfToolLibraries("jpg-pdf");
       status.textContent = "Creating your PDF...";
-    try {
       const { jsPDF } = window.jspdf;
       let pdf;
       for (let i = 0; i < images.length; i++) {
